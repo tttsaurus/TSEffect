@@ -46,6 +46,12 @@ namespace TS.TSEffect
         public static bool IsMetadataLoaded { get { return _IsMetadataLoaded; } }
         private static bool _IsMetadataLoaded = false;
 
+        /// <summary>
+        /// Call this function to attach a component to the given channel.
+        /// </summary>
+        /// <typeparam name="T">T represents the type of the component.</typeparam>
+        /// <param name="channel">The channel divides the component into a group.</param>
+        /// <param name="com">The component listens to the execution of effects.</param>
         public static void AttachComponent<T>(int channel, T com) where T : Component
         {
             string target_type = typeof(T).FullName;
@@ -93,6 +99,12 @@ namespace TS.TSEffect
                 }
             }
         }
+        /// <summary>
+        /// Call this function to detach a component from the given channel.
+        /// </summary>
+        /// <typeparam name="T">T represents the type of the component.</typeparam>
+        /// <param name="channel">The channel divides the component into a group.</param>
+        /// <param name="com">The component listens to the execution of effects.</param>
         public static void DetachComponent<T>(int channel, T com) where T : Component
         {
             string target_type = typeof(T).FullName;
@@ -112,6 +124,12 @@ namespace TS.TSEffect
                 etor.Current.RemoveRuntimeTarget(com, channel);
             }
         }
+        /// <summary>
+        /// Call this function to compile effects and store them in the dictionary with the given ID.
+        /// </summary>
+        /// <param name="e_id">The ID is the key for the corresponding effects.</param>
+        /// <param name="cont">The container stores the effects.</param>
+        /// <returns>It returns whether the behavior succeed.</returns>
         public static bool AddExecutables(string e_id, EffectsContainer cont)
         {
             if (_ExeCoreDict.ContainsKey(e_id))
@@ -171,6 +189,12 @@ namespace TS.TSEffect
                 return true;
             }       
         }
+        /// <summary>
+        /// Call this function to execute effects.
+        /// </summary>
+        /// <param name="e_id">The ID determines what effects are going to be executed.</param>
+        /// <param name="channel">The channel determines what targets are going to listen to the execution.</param>
+        /// <returns>It returns whether the behavior succeed.</returns>
         public static bool Execute(string e_id, int channel)
         {
             List<ExecutableThreadCore> list;
@@ -220,6 +244,10 @@ namespace TS.TSEffect
             else
                 return false;
         }
+        /// <summary>
+        /// Don't call it manually.
+        /// This function will be called automatically at runtime.
+        /// </summary>
         public static void ExecuteCallbacks()
         {
             if (_RuntimeExecutorsCallbacks.Count > 0)
@@ -267,6 +295,10 @@ namespace TS.TSEffect
             AssetDatabase.Refresh();
 #endif
         }
+        /// <summary>
+        /// Don't call it manually.
+        /// This function will be called automatically at runtime when needed.
+        /// </summary>
         public static void ReloadMetadata()
         {
             var res = Resources.Load<TSEffectMetadata>("TSEffect/TSEffectMetadata");
@@ -329,6 +361,10 @@ namespace TS.TSEffect
                 return true;
             }
         }
+        /// <summary>
+        /// Don't call it manually.
+        /// This function will be called automatically at runtime.
+        /// </summary>
         public static void LoadTSEffect()
         {
             if (!_IsMetadataLoaded)
@@ -341,6 +377,10 @@ namespace TS.TSEffect
             _Metadata.InitCache();
             PostDeserialize();
         }
+        /// <summary>
+        /// Don't call it manually.
+        /// This function will be called automatically at runtime.
+        /// </summary>
         public static void LoadBuiltinEffectCollections()
         {
 #if UNITY_EDITOR
@@ -373,6 +413,11 @@ namespace TS.TSEffect
             Resources.UnloadUnusedAssets();
         }
         
+        /// <summary>
+        /// Don't call it manually.
+        /// This is a function for the embedded serialization system.
+        /// </summary>
+        /// <param name="action"></param>
         public static void AddPostDeserialization(Action action)
         {
             _PostDeserializations.Add(action);
