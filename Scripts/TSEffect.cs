@@ -193,7 +193,7 @@ namespace TS.TSEffect
         /// Call this function to execute effects.
         /// </summary>
         /// <param name="e_id">The ID determines what effects are going to be executed.</param>
-        /// <param name="channel">The channel determines what targets are going to listen to the execution.</param>
+        /// <param name="channel">The channel determines what components are going to listen to the execution.</param>
         /// <returns>It returns whether the behavior succeed.</returns>
         public static bool Execute(string e_id, int channel)
         {
