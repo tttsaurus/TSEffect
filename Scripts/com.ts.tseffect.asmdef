@@ -1,0 +1,16 @@
+{
+    "name": "com.ts.tseffect",
+    "rootNamespace": "",
+    "references": [
+        "GUID:0a36ed703cd8ac149aaefd7839d31fcd"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

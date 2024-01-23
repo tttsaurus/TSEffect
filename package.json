@@ -1,0 +1,16 @@
+{
+    "name": "com.ts.tseffect",
+    "displayName": "TSEffect",
+    "version": "0.1.0",
+    "unity": "2020.3",
+    "description": "",
+    "keywords": [],
+    "author": {
+        "name": "tttsaurus",
+        "email": "",
+        "url": ""
+    },
+    "dependencies": {
+        "com.ts.tslib": "0.1.0"
+    }
+}
