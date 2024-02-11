@@ -42,7 +42,7 @@ namespace TS.TSEffect.Effect
                         var accessor_cache = GetAccessors(tar);
                         if (FloatThread[tmp].Enable)
                         {
-                            return (CacheDic cache) =>
+                            return (CacheDict cache) =>
                             {
                                 #region Reflection Get
                                 switch (MemberRMode[tmp])
@@ -83,7 +83,7 @@ namespace TS.TSEffect.Effect
                         var accessor_cache = GetAccessors(tar);
                         if (FloatThread[tmp].Enable)
                         {
-                            return (CacheDic cache) =>
+                            return (CacheDict cache) =>
                             {
                                 if (FloatThread[tmp].Resume)
                                 {
@@ -121,7 +121,7 @@ namespace TS.TSEffect.Effect
                         var accessor_cache = GetAccessors(tar);
                         if (FloatThread[tmp].Enable)
                         {
-                            return (float time, CacheDic cache) =>
+                            return (float time, CacheDict cache) =>
                             {
                                 EvaluateFloat(tar, tmp, time, accessor_cache, cache);
                             };
@@ -189,7 +189,7 @@ namespace TS.TSEffect.Effect
         #endregion
 
         #region Evaluate
-        private void EvaluateFloat(Component instance, int index, float time, AccessorDict<float> accessor_cache, CacheDic cache)
+        private void EvaluateFloat(Component instance, int index, float time, AccessorDict<float> accessor_cache, CacheDict cache)
         {
             switch (FloatThread[index].Mode)
             {

@@ -32,7 +32,7 @@ namespace TS.TSEffect.Effect
                     var instance = tar as Transform;
                     if (Rotation.Enable)
                     {
-                        return (CacheDic cache) =>
+                        return (CacheDict cache) =>
                         {
                             if (IsWorldRot)
                             {
@@ -56,7 +56,7 @@ namespace TS.TSEffect.Effect
                     var instance = tar as Transform;
                     if (Rotation.Enable)
                     {
-                        return (CacheDic cache) =>
+                        return (CacheDict cache) =>
                         {
                             if (Rotation.Resume)
                             {
@@ -83,7 +83,7 @@ namespace TS.TSEffect.Effect
                     var instance = tar as Transform;
                     if (Rotation.Enable)
                     {
-                        return (float time, CacheDic cache) =>
+                        return (float time, CacheDict cache) =>
                         {
                             EvaluateRotation(instance, time, cache);
                         };
@@ -112,7 +112,7 @@ namespace TS.TSEffect.Effect
         }
 
         #region Evaluate
-        private void EvaluateRotation(Transform instance, float time, CacheDic cache)
+        private void EvaluateRotation(Transform instance, float time, CacheDict cache)
         {
             if (IsWorldRot)
             {

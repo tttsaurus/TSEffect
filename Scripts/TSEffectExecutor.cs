@@ -24,12 +24,12 @@ namespace TS.TSEffect
                     status = "Delay";
                     color = new Color(117f / 255f, 199f / 255f, 169f / 255f);
                 }
-                if (exe.IsFinish)
+                if (exe.IsFinished)
                 {
                     status = "Finish";
                     color = new Color(199f / 255f, 161f / 255f, 129f / 255f);
                 }
-                if (exe.IsPause)
+                if (exe.IsPaused)
                 {
                     status += " (Pause)";
                     color = new Color(color.r, color.g, color.b, 0.7f);

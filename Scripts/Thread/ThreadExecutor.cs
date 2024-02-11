@@ -44,10 +44,10 @@ namespace TS.TSEffect.Thread
         private int _Channel;
         public bool IsSuspended { get { return _IsSuspended; } }
         private bool _IsSuspended = false;
-        public bool IsFinish { get { return _IsFinish; } }
-        private bool _IsFinish = false;
-        public bool IsPause { get { return _IsPause; } }
-        private bool _IsPause = false;
+        public bool IsFinished { get { return _IsFinished; } }
+        private bool _IsFinished = false;
+        public bool IsPaused { get { return _IsPaused; } }
+        private bool _IsPaused = false;
         public float RelativeTimer { get { return _RelativeTimer; } }
         private float _RelativeTimer = 0f;
         public float OverallTimer { get { return _OverallTimer; } }
@@ -65,16 +65,16 @@ namespace TS.TSEffect.Thread
         private Action _RemoveCallback;
         private Action _SuspendCallback;
 
-        private CacheDic _RuntimeCachePool = new CacheDic();
-        private Dictionary<Component, ExeFuncBundle> _RuntimeDict = new Dictionary<Component, ExeFuncBundle>();
+        private CacheDict _RuntimeCacheDict = new CacheDict();
+        private Dictionary<Component, ExeFuncBundle> _RuntimeComs = new Dictionary<Component, ExeFuncBundle>();
 
         public void Update()
         {
             if (!_IsSuspended)
             {
-                if (!_IsPause)
+                if (!_IsPaused)
                 {
-                    if (!_IsFinish)
+                    if (!_IsFinished)
                     {
                         float delta = Time.deltaTime;
                         _RelativeTimer += delta;
@@ -86,10 +86,10 @@ namespace TS.TSEffect.Thread
                                 // reset timer
                                 _RelativeTimer -= _ExeThreadCore.Thread.InitialDelay;
                                 _IsInitDelay = false;
-                                foreach (var pair in _RuntimeDict)
+                                foreach (var pair in _RuntimeComs)
                                 {
-                                    _RuntimeCachePool.SetUser(pair.Key.GetInstanceID());
-                                    pair.Value.InitExecute(_RuntimeCachePool);
+                                    _RuntimeCacheDict.SetUser(pair.Key.GetInstanceID());
+                                    pair.Value.InitExecute(_RuntimeCacheDict);
                                 }
                             }
                         }
@@ -102,10 +102,10 @@ namespace TS.TSEffect.Thread
                                     // reset timer
                                     _RelativeTimer -= _ExeThreadCore.Thread.DelayBetweenLoops;
                                     _IsLoopDelay = false;
-                                    foreach (var pair in _RuntimeDict)
+                                    foreach (var pair in _RuntimeComs)
                                     {
-                                        _RuntimeCachePool.SetUser(pair.Key.GetInstanceID());
-                                        pair.Value.InitExecute(_RuntimeCachePool);
+                                        _RuntimeCacheDict.SetUser(pair.Key.GetInstanceID());
+                                        pair.Value.InitExecute(_RuntimeCacheDict);
                                     }
                                 }
                             }
@@ -113,17 +113,17 @@ namespace TS.TSEffect.Thread
                             {
                                 if (_RelativeTimer >= _ExeThreadCore.Thread.Duration)
                                 {
-                                    foreach (var pair in _RuntimeDict)
+                                    foreach (var pair in _RuntimeComs)
                                     {
-                                        _RuntimeCachePool.SetUser(pair.Key.GetInstanceID());
-                                        pair.Value.FinalExecute(_RuntimeCachePool);
+                                        _RuntimeCacheDict.SetUser(pair.Key.GetInstanceID());
+                                        pair.Value.FinalExecute(_RuntimeCacheDict);
                                     }
                                     _LoopCounter++;
                                     if (_LoopCounter >= _ExeThreadCore.Thread.Loop)
                                     {
                                         _RelativeTimer = _ExeThreadCore.Thread.Duration;
                                         _OverallTimer = _ExeThreadCore.Thread.InitialDelay + _ExeThreadCore.Thread.Loop * (_ExeThreadCore.Thread.DelayBetweenLoops + _ExeThreadCore.Thread.Duration) - _ExeThreadCore.Thread.DelayBetweenLoops;
-                                        _IsFinish = true;
+                                        _IsFinished = true;
                                         if (_ExeThreadCore.Thread.AutoSuspend)
                                         {
                                             Suspend();
@@ -143,18 +143,18 @@ namespace TS.TSEffect.Thread
                                 {
                                     if (_ExeThreadCore.ThreadType == ThreadType.Varying)
                                     {
-                                        foreach (var pair in _RuntimeDict)
+                                        foreach (var pair in _RuntimeComs)
                                         {
-                                            _RuntimeCachePool.SetUser(pair.Key.GetInstanceID());
-                                            pair.Value.OnExecute(_RelativeTimer / _ExeThreadCore.Thread.Duration, _RuntimeCachePool);
+                                            _RuntimeCacheDict.SetUser(pair.Key.GetInstanceID());
+                                            pair.Value.OnExecute(_RelativeTimer / _ExeThreadCore.Thread.Duration, _RuntimeCacheDict);
                                         }
                                     }
                                     if (_ExeThreadCore.ThreadType == ThreadType.Triggering)
                                     {
-                                        foreach (var pair in _RuntimeDict)
+                                        foreach (var pair in _RuntimeComs)
                                         {
-                                            _RuntimeCachePool.SetUser(pair.Key.GetInstanceID());
-                                            pair.Value.OnExecute(_RelativeTimer, _RuntimeCachePool);
+                                            _RuntimeCacheDict.SetUser(pair.Key.GetInstanceID());
+                                            pair.Value.OnExecute(_RelativeTimer, _RuntimeCacheDict);
                                         }
                                     }
                                 }
@@ -166,11 +166,11 @@ namespace TS.TSEffect.Thread
         }
         public void Pause()
         {
-            _IsPause = true;
+            _IsPaused = true;
         }
         public void Continue()
         {
-            _IsPause = false;
+            _IsPaused = false;
         }
         public void Suspend()
         {
@@ -183,19 +183,19 @@ namespace TS.TSEffect.Thread
         }
         public void RuntimeInit()
         {
-            _IsFinish = false;
-            _IsPause = false;
+            _IsFinished = false;
+            _IsPaused = false;
             _RelativeTimer = 0;
             _OverallTimer = 0;
             _LoopCounter = 0;
             _IsInitDelay = true;
             _IsLoopDelay = false;
-            _RuntimeCachePool.Clear();
-            _RuntimeDict.Clear();
+            _RuntimeCacheDict.Clear();
+            _RuntimeComs.Clear();
         }
         public void ResetRuntimeTargets(List<Component> coms)
         {
-            _RuntimeDict.Clear();
+            _RuntimeComs.Clear();
             for (int i = 0; i < coms.Count; i++)
             {
                 var com = coms[i];
@@ -206,7 +206,7 @@ namespace TS.TSEffect.Thread
                     var c = _ExeThreadCore.OnExecuteBuilder(com);
                     if (a != null && b != null && c != null)
                     {
-                        _RuntimeDict.Add(com, new ExeFuncBundle(a, b, c));
+                        _RuntimeComs.Add(com, new ExeFuncBundle(a, b, c));
                     }
                 }
             }
@@ -217,14 +217,14 @@ namespace TS.TSEffect.Thread
             {
                 if (typeof(T).FullName == _ExeThreadCore.TargetType)
                 {
-                    if (!_RuntimeDict.ContainsKey(com))
+                    if (!_RuntimeComs.ContainsKey(com))
                     {
                         var a = _ExeThreadCore.InitExecuteBuilder(com);
                         var b = _ExeThreadCore.FinalExecuteBuilder(com);
                         var c = _ExeThreadCore.OnExecuteBuilder(com);
                         if (a != null && b != null && c != null)
                         {
-                            _RuntimeDict.Add(com, new ExeFuncBundle(a, b, c));
+                            _RuntimeComs.Add(com, new ExeFuncBundle(a, b, c));
                             return true;
                         }
                         else
@@ -242,10 +242,10 @@ namespace TS.TSEffect.Thread
             {
                 if (typeof(T).FullName == _ExeThreadCore.TargetType)
                 {
-                    if (_RuntimeDict.ContainsKey(com))
+                    if (_RuntimeComs.ContainsKey(com))
                     {
                         var c = com as Component;
-                        _RuntimeDict.Remove(c);
+                        _RuntimeComs.Remove(c);
                         return true;
                     }
                 }

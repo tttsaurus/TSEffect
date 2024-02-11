@@ -41,7 +41,7 @@ namespace TS.TSEffect.Effect
                         var accessor_cache = GetAccessors(tar);
                         if (BoolThread[tmp].Enable)
                         {
-                            return (CacheDic cache) =>
+                            return (CacheDict cache) =>
                             {
                                 BoolThread[tmp].Behavior.BindCache(cache);
                                 #region Reflection Get
@@ -83,7 +83,7 @@ namespace TS.TSEffect.Effect
                         var accessor_cache = GetAccessors(tar);
                         if (BoolThread[tmp].Enable)
                         {
-                            return (CacheDic cache) =>
+                            return (CacheDict cache) =>
                             {
                                 if (BoolThread[tmp].Resume)
                                 {
@@ -121,7 +121,7 @@ namespace TS.TSEffect.Effect
                         var accessor_cache = GetAccessors(tar);
                         if (BoolThread[tmp].Enable)
                         {
-                            return (float time, CacheDic cache) =>
+                            return (float time, CacheDict cache) =>
                             {
                                 EvaluateBool(tar, tmp, time, accessor_cache);
                             };

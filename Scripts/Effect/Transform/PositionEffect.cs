@@ -32,7 +32,7 @@ namespace TS.TSEffect.Effect
                     var instance = tar as Transform;
                     if (Position.Enable)
                     {
-                        return (CacheDic cache) =>
+                        return (CacheDict cache) =>
                         {
                             if (IsWorldPos)
                             {
@@ -56,7 +56,7 @@ namespace TS.TSEffect.Effect
                     var instance = tar as Transform;
                     if (Position.Enable)
                     {
-                        return (CacheDic cache) =>
+                        return (CacheDict cache) =>
                         {
                             if (Position.Resume)
                             {
@@ -83,7 +83,7 @@ namespace TS.TSEffect.Effect
                     var instance = tar as Transform;
                     if (Position.Enable)
                     {
-                        return (float time, CacheDic cache) =>
+                        return (float time, CacheDict cache) =>
                         {
                             EvaluatePosition(instance, time, cache);
                         };
@@ -112,7 +112,7 @@ namespace TS.TSEffect.Effect
         }
 
         #region Evaluate
-        private void EvaluatePosition(Transform instance, float time, CacheDic cache)
+        private void EvaluatePosition(Transform instance, float time, CacheDict cache)
         {
             if (IsWorldPos)
             {

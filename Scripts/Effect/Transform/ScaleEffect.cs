@@ -31,7 +31,7 @@ namespace TS.TSEffect.Effect
                     var instance = tar as Transform;
                     if (Scale.Enable)
                     {
-                        return (CacheDic cache) =>
+                        return (CacheDict cache) =>
                         {
                             CacheObj obj = new CacheObj();
                             obj.Value_UnityEngine_Vector3 = instance.localScale;
@@ -46,7 +46,7 @@ namespace TS.TSEffect.Effect
                     var instance = tar as Transform;
                     if (Scale.Enable)
                     {
-                        return (CacheDic cache) =>
+                        return (CacheDict cache) =>
                         {
                             if (Scale.Resume)
                             {
@@ -66,7 +66,7 @@ namespace TS.TSEffect.Effect
                     var instance = tar as Transform;
                     if (Scale.Enable)
                     {
-                        return (float time, CacheDic cache) =>
+                        return (float time, CacheDict cache) =>
                         {
                             EvaluateScale(instance, time, cache);
                         };
@@ -94,7 +94,7 @@ namespace TS.TSEffect.Effect
         }
 
         #region Evaluate
-        private void EvaluateScale(Transform instance, float time, CacheDic cache)
+        private void EvaluateScale(Transform instance, float time, CacheDict cache)
         {
             switch (Scale.Mode)
             {

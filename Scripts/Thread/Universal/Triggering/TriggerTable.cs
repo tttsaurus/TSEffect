@@ -18,7 +18,7 @@ namespace TS.TSEffect.Thread.Universal
         [SerializeField]
         private List<SerializableObject<T>> _KeyValue = new List<SerializableObject<T>>();
         
-        // Runtime
+        // runtime
         [NonSerialized]
         private Action<int> _SetIndex;
         [NonSerialized]
@@ -110,7 +110,7 @@ namespace TS.TSEffect.Thread.Universal
             _Sorted = true;
         }
 
-        public void BindCache(CacheDic cache)
+        public void BindCache(CacheDict cache)
         {
             _SetIndex = (i) =>
             {
