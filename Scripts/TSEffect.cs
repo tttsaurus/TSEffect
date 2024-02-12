@@ -158,7 +158,7 @@ namespace TS.TSEffect
                             {
                                 var field_name = etor.Current.Key;
                                 var list_thread = ThreadUtil.GetThreadsFromEffect(effect, field_name);
-
+                                
                                 List<NormalExeFuncBuilder> a = new List<NormalExeFuncBuilder>();
                                 List<NormalExeFuncBuilder> b = new List<NormalExeFuncBuilder>();
                                 List<TimeExeFuncBuilder> c = new List<TimeExeFuncBuilder>();

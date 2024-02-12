@@ -8,6 +8,7 @@ using TS.TSLib.Accessor;
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -20,44 +21,44 @@ namespace TS.TSEffect.Effect
     public sealed class BoolEffect : TSEffectTemplate
     {
         public ThreadUtil.ReflectionMode RMode;
-        public ThreadUtil.ReflectionMode[] MemberRMode;
-        public string[] BoolName;
+        public ThreadUtil.ReflectionMode[] MemberRModes;
+        public string[] BoolNames;
 
         [ThreadRegister("BoolThread")]
-        public Triggering<bool>[] BoolThread;
+        public Triggering<bool>[] BoolThreads;
 
         public override void GenLogicBuilders(string thread_field_name, out List<NormalExeFuncBuilder> init_exe, out List<NormalExeFuncBuilder> final_exe, out List<TimeExeFuncBuilder> on_exe)
         {
             base.GenLogicBuilders(thread_field_name, out init_exe, out final_exe, out on_exe);
             
             #region Bool
-            if (thread_field_name == "BoolThread")
+            if (thread_field_name == "BoolThreads")
             {
-                for (int i = 0; i < BoolThread.Length; i++)
+                for (int i = 0; i < BoolThreads.Length; i++)
                 {
                     int tmp = i;
                     init_exe.Add((Component tar) =>
                     {
                         var accessor_cache = GetAccessors(tar);
-                        if (BoolThread[tmp].Enable)
+                        if (BoolThreads[tmp].Enable)
                         {
                             return (CacheDict cache) =>
                             {
-                                BoolThread[tmp].Behavior.BindCache(cache);
+                                BoolThreads[tmp].Behavior.BindCache(cache);
                                 #region Reflection Get
-                                switch (MemberRMode[tmp])
+                                switch (MemberRModes[tmp])
                                 {
                                     case ThreadUtil.ReflectionMode.Field:
                                         {
                                             CacheObj obj = new CacheObj();
-                                            obj.Value_Bool = (bool)tar.GetType().GetField(BoolName[tmp]).GetValue(tar);
+                                            obj.Value_Bool = (bool)tar.GetType().GetField(BoolNames[tmp]).GetValue(tar);
                                             cache.Overwrite("initial", obj);
                                         }
                                         break;
                                     case ThreadUtil.ReflectionMode.Property:
                                         {
                                             Func<bool> func = null;
-                                            if (accessor_cache.Getters.TryGetValue(BoolName[tmp], out func))
+                                            if (accessor_cache.Getters.TryGetValue(BoolNames[tmp], out func))
                                             {
                                                 CacheObj obj = new CacheObj();
                                                 obj.Value_Bool = func();
@@ -66,7 +67,7 @@ namespace TS.TSEffect.Effect
                                             else
                                             {
                                                 CacheObj obj = new CacheObj();
-                                                obj.Value_Bool = (bool)tar.GetType().GetProperty(BoolName[tmp]).GetValue(tar);
+                                                obj.Value_Bool = (bool)tar.GetType().GetProperty(BoolNames[tmp]).GetValue(tar);
                                                 cache.Overwrite("initial", obj);
                                             }
                                         }
@@ -81,27 +82,27 @@ namespace TS.TSEffect.Effect
                     final_exe.Add((Component tar) =>
                     {
                         var accessor_cache = GetAccessors(tar);
-                        if (BoolThread[tmp].Enable)
+                        if (BoolThreads[tmp].Enable)
                         {
                             return (CacheDict cache) =>
                             {
-                                if (BoolThread[tmp].Resume)
+                                if (BoolThreads[tmp].Resume)
                                 {
                                     #region Reflection Set
-                                    switch (MemberRMode[tmp])
+                                    switch (MemberRModes[tmp])
                                     {
                                         case ThreadUtil.ReflectionMode.Field:
-                                            tar.GetType().GetField(BoolName[tmp]).SetValue(tar, cache.GetValue("initial").Value_Bool);
+                                            tar.GetType().GetField(BoolNames[tmp]).SetValue(tar, cache.GetValue("initial").Value_Bool);
                                             break;
                                         case ThreadUtil.ReflectionMode.Property:
                                             Action<bool> func = null;
-                                            if (accessor_cache.Setters.TryGetValue(BoolName[tmp], out func))
+                                            if (accessor_cache.Setters.TryGetValue(BoolNames[tmp], out func))
                                             {
                                                 func(cache.GetValue("initial").Value_Bool);
                                             }
                                             else
                                             {
-                                                tar.GetType().GetProperty(BoolName[tmp]).SetValue(tar, cache.GetValue("initial").Value_Bool);
+                                                tar.GetType().GetProperty(BoolNames[tmp]).SetValue(tar, cache.GetValue("initial").Value_Bool);
                                             }
                                             break;
                                     }
@@ -109,7 +110,7 @@ namespace TS.TSEffect.Effect
                                 }
                                 else
                                 {
-                                    EvaluateBool(tar, tmp, BoolThread[tmp].Duration, accessor_cache);
+                                    EvaluateBool(tar, tmp, BoolThreads[tmp].Duration, accessor_cache);
                                 }
                             };
                         }
@@ -119,7 +120,7 @@ namespace TS.TSEffect.Effect
                     on_exe.Add((Component tar) =>
                     {
                         var accessor_cache = GetAccessors(tar);
-                        if (BoolThread[tmp].Enable)
+                        if (BoolThreads[tmp].Enable)
                         {
                             return (float time, CacheDict cache) =>
                             {
@@ -136,25 +137,25 @@ namespace TS.TSEffect.Effect
         public override void OnReset()
         {
             base.OnReset();
-            for (int i = 0; i < BoolThread.Length; i++)
+            for (int i = 0; i < BoolThreads.Length; i++)
             {
-                BoolThread[i].Reset();
+                BoolThreads[i].Reset();
             }
         }
         protected override void OnInit()
         {
             base.OnInit();
             RMode = ThreadUtil.ReflectionMode.Field;
-            MemberRMode = new ThreadUtil.ReflectionMode[0];
-            BoolName = new string[0];
-            BoolThread = new Triggering<bool>[0];
+            MemberRModes = new ThreadUtil.ReflectionMode[0];
+            BoolNames = new string[0];
+            BoolThreads = new Triggering<bool>[0];
         }
         public override void OnToggleAll(bool value)
         {
             base.OnToggleAll(value);
-            for (int i = 0; i < BoolThread.Length; i++)
+            for (int i = 0; i < BoolThreads.Length; i++)
             {
-                BoolThread[i].Enable = value;
+                BoolThreads[i].Enable = value;
             }
         }
 
@@ -162,24 +163,24 @@ namespace TS.TSEffect.Effect
         private AccessorDict<bool> GetAccessors(Component tar)
         {
             AccessorDict<bool> accessor_cache = new AccessorDict<bool>();
-            for (int i = 0; i < BoolName.Length; i++)
+            for (int i = 0; i < BoolNames.Length; i++)
             {
-                if (MemberRMode[i] == ThreadUtil.ReflectionMode.Property)
+                if (MemberRModes[i] == ThreadUtil.ReflectionMode.Property)
                 {
-                    var info = tar.GetType().GetProperty(BoolName[i]);
+                    var info = tar.GetType().GetProperty(BoolNames[i]);
                     if (info != null)
                     {
                         var m_get = info.GetGetMethod();
                         if (m_get != null)
                         {
                             var get_func = DelegateUtil.MethodConverter.CreateFunc(m_get, tar.GetType(), typeof(bool));
-                            accessor_cache.Getters.Add(BoolName[i], () => { return (bool)get_func(tar); });
+                            accessor_cache.Getters.Add(BoolNames[i], () => { return (bool)get_func(tar); });
                         }
                         var m_set = info.GetSetMethod();
                         if (m_set != null)
                         {
                             var set_func = DelegateUtil.MethodConverter.CreateAction(m_set, tar.GetType(), typeof(bool));
-                            accessor_cache.Setters.Add(BoolName[i], (bool v) => { set_func(tar, v); });
+                            accessor_cache.Setters.Add(BoolNames[i], (bool v) => { set_func(tar, v); });
                         }
                     }
                 }
@@ -192,23 +193,23 @@ namespace TS.TSEffect.Effect
         private void EvaluateBool(Component instance, int index, float time, AccessorDict<bool> accessor_cache)
         {
             bool value;
-            if (BoolThread[index].Behavior.TryEvaluate(time, BoolThread[index].Duration, out value))
+            if (BoolThreads[index].Behavior.TryEvaluate(time, BoolThreads[index].Duration, out value))
             {
                 #region Reflection Set
-                switch (MemberRMode[index])
+                switch (MemberRModes[index])
                 {
                     case ThreadUtil.ReflectionMode.Field:
-                        instance.GetType().GetField(BoolName[index]).SetValue(instance, value);
+                        instance.GetType().GetField(BoolNames[index]).SetValue(instance, value);
                         break;
                     case ThreadUtil.ReflectionMode.Property:
                         Action<bool> func = null;
-                        if (accessor_cache.Setters.TryGetValue(BoolName[index], out func))
+                        if (accessor_cache.Setters.TryGetValue(BoolNames[index], out func))
                         {
                             func(value);
                         }
                         else
                         {
-                            instance.GetType().GetProperty(BoolName[index]).SetValue(instance, value);
+                            instance.GetType().GetProperty(BoolNames[index]).SetValue(instance, value);
                         }
                         break;
                 }
@@ -244,25 +245,31 @@ namespace TS.TSEffect.Effect
                 RMode = (ThreadUtil.ReflectionMode)EditorGUI.EnumPopup(rect1, RMode);
                 if (GUI.Button(rect2, "Refresh " + RMode.ToString()))
                 {
-                    Type type = Type.GetType(TargetType);
-                    
+                    Type type = null;
+                    Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+                    foreach (var assembly in assemblies)
+                    {
+                        type = assembly.GetType(TargetType);
+                        if (type != null) break;
+                    }
+
                     if (type != null)
                     {
-                        ThreadUtil.ReflectionMode[] member_r_mode = new ThreadUtil.ReflectionMode[0];
-                        string[] member_name = new string[0];
-                        Triggering<bool>[] thread = new Triggering<bool>[0];
-                        ThreadUtil.TryBuildThreadsFromComponent(type, RMode, out member_r_mode, out member_name, out thread);
-                        
+                        ThreadUtil.ReflectionMode[] member_r_modes;
+                        string[] member_names;
+                        Triggering<bool>[] threads;
+                        ThreadUtil.TryBuildThreadsFromComponent(type, RMode, out member_r_modes, out member_names, out threads);
+
                         bool refresh = false;
-                        if (BoolName.Length != member_name.Length)
+                        if (BoolNames.Length != member_names.Length)
                         {
                             refresh = true;
                         }
                         else
                         {
-                            for (int i = 0; i < BoolName.Length; i++)
+                            for (int i = 0; i < BoolNames.Length; i++)
                             {
-                                if (BoolName[i] != member_name[i])
+                                if (BoolNames[i] != member_names[i])
                                 {
                                     refresh = true;
                                     break;
@@ -271,10 +278,16 @@ namespace TS.TSEffect.Effect
                         }
                         if (refresh)
                         {
-                            MemberRMode = member_r_mode;
-                            BoolName = member_name;
-                            BoolThread = thread;
+                            MemberRModes = member_r_modes;
+                            BoolNames = member_names;
+                            BoolThreads = threads;
                         }
+                    }
+                    else
+                    {
+                        MemberRModes = new ThreadUtil.ReflectionMode[0];
+                        BoolNames = new string[0];
+                        BoolThreads = new Triggering<bool>[0];
                     }
                 }
             }
@@ -294,9 +307,9 @@ namespace TS.TSEffect.Effect
                 {
                     _TargetType = mono.GetType().FullName;
                 }
-                for (int i = 0; i < BoolThread.Length; i++)
+                for (int i = 0; i < BoolThreads.Length; i++)
                 {
-                    TSEffectGUILayout.FullTriggeringThreadField(BoolThread[i], true, BoolName[i]);
+                    TSEffectGUILayout.FullTriggeringThreadField(BoolThreads[i], true, BoolNames[i]);
                 }
             }
 #endif

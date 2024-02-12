@@ -8,6 +8,7 @@ using TS.TSLib.Accessor;
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -20,44 +21,44 @@ namespace TS.TSEffect.Effect
     public sealed class FloatEffect : TSEffectTemplate
     {
         public ThreadUtil.ReflectionMode RMode;
-        public ThreadUtil.ReflectionMode[] MemberRMode;
-        public string[] FloatName;
+        public ThreadUtil.ReflectionMode[] MemberRModes;
+        public string[] FloatNames;
 
         [ThreadRegister("FloatThread")]
-        public Varying<float>[] FloatThread;
+        public Varying<float>[] FloatThreads;
 
         public override void GenLogicBuilders(string thread_field_name, out List<NormalExeFuncBuilder> init_exe, out List<NormalExeFuncBuilder> final_exe, out List<TimeExeFuncBuilder> on_exe)
         {
             base.GenLogicBuilders(thread_field_name, out init_exe, out final_exe, out on_exe);
 
             #region Float
-            if (thread_field_name == "FloatThread")
+            if (thread_field_name == "FloatThreads")
             {
-                for (int i = 0; i < FloatThread.Length; i++)
+                for (int i = 0; i < FloatThreads.Length; i++)
                 {
                     int tmp = i;
 
                     init_exe.Add((Component tar) =>
                     {
                         var accessor_cache = GetAccessors(tar);
-                        if (FloatThread[tmp].Enable)
+                        if (FloatThreads[tmp].Enable)
                         {
                             return (CacheDict cache) =>
                             {
                                 #region Reflection Get
-                                switch (MemberRMode[tmp])
+                                switch (MemberRModes[tmp])
                                 {
                                     case ThreadUtil.ReflectionMode.Field:
                                         {
                                             CacheObj obj = new CacheObj();
-                                            obj.Value_Float = (float)tar.GetType().GetField(FloatName[tmp]).GetValue(tar);
+                                            obj.Value_Float = (float)tar.GetType().GetField(FloatNames[tmp]).GetValue(tar);
                                             cache.Overwrite("initial", obj);
                                             break;
                                         }
                                     case ThreadUtil.ReflectionMode.Property:
                                         {
                                             Func<float> func = null;
-                                            if (accessor_cache.Getters.TryGetValue(FloatName[tmp], out func))
+                                            if (accessor_cache.Getters.TryGetValue(FloatNames[tmp], out func))
                                             {
                                                 CacheObj obj = new CacheObj();
                                                 obj.Value_Float = func();
@@ -66,7 +67,7 @@ namespace TS.TSEffect.Effect
                                             else
                                             {
                                                 CacheObj obj = new CacheObj();
-                                                obj.Value_Float = (float)tar.GetType().GetProperty(FloatName[tmp]).GetValue(tar);
+                                                obj.Value_Float = (float)tar.GetType().GetProperty(FloatNames[tmp]).GetValue(tar);
                                                 cache.Overwrite("initial", obj);
                                             }
                                             break;
@@ -81,27 +82,27 @@ namespace TS.TSEffect.Effect
                     final_exe.Add((Component tar) =>
                     {
                         var accessor_cache = GetAccessors(tar);
-                        if (FloatThread[tmp].Enable)
+                        if (FloatThreads[tmp].Enable)
                         {
                             return (CacheDict cache) =>
                             {
-                                if (FloatThread[tmp].Resume)
+                                if (FloatThreads[tmp].Resume)
                                 {
                                     #region Reflection Set
-                                    switch (MemberRMode[tmp])
+                                    switch (MemberRModes[tmp])
                                     {
                                         case ThreadUtil.ReflectionMode.Field:
-                                            tar.GetType().GetField(FloatName[tmp]).SetValue(tar, cache.GetValue("initial").Value_Float);
+                                            tar.GetType().GetField(FloatNames[tmp]).SetValue(tar, cache.GetValue("initial").Value_Float);
                                             break;
                                         case ThreadUtil.ReflectionMode.Property:
                                             Action<float> func = null;
-                                            if (accessor_cache.Setters.TryGetValue(FloatName[tmp], out func))
+                                            if (accessor_cache.Setters.TryGetValue(FloatNames[tmp], out func))
                                             {
                                                 func(cache.GetValue("initial").Value_Float);
                                             }
                                             else
                                             {
-                                                tar.GetType().GetProperty(FloatName[tmp]).SetValue(tar, cache.GetValue("initial").Value_Float);
+                                                tar.GetType().GetProperty(FloatNames[tmp]).SetValue(tar, cache.GetValue("initial").Value_Float);
                                             }
                                             break;
                                     }
@@ -119,7 +120,7 @@ namespace TS.TSEffect.Effect
                     on_exe.Add((Component tar) =>
                     {
                         var accessor_cache = GetAccessors(tar);
-                        if (FloatThread[tmp].Enable)
+                        if (FloatThreads[tmp].Enable)
                         {
                             return (float time, CacheDict cache) =>
                             {
@@ -136,25 +137,25 @@ namespace TS.TSEffect.Effect
         public override void OnReset()
         {
             base.OnReset();
-            for (int i = 0; i < FloatThread.Length; i++)
+            for (int i = 0; i < FloatThreads.Length; i++)
             {
-                FloatThread[i].Reset();
+                FloatThreads[i].Reset();
             }
         }
         protected override void OnInit()
         {
             base.OnInit();
             RMode = ThreadUtil.ReflectionMode.Field;
-            MemberRMode = new ThreadUtil.ReflectionMode[0];
-            FloatName = new string[0];
-            FloatThread = new Varying<float>[0];
+            MemberRModes = new ThreadUtil.ReflectionMode[0];
+            FloatNames = new string[0];
+            FloatThreads = new Varying<float>[0];
         }
         public override void OnToggleAll(bool value)
         {
             base.OnToggleAll(value);
-            for (int i = 0; i < FloatThread.Length; i++)
+            for (int i = 0; i < FloatThreads.Length; i++)
             {
-                FloatThread[i].Enable = value;
+                FloatThreads[i].Enable = value;
             }
         }
 
@@ -162,24 +163,24 @@ namespace TS.TSEffect.Effect
         private AccessorDict<float> GetAccessors(Component instance)
         {
             AccessorDict<float> accessor_cache = new AccessorDict<float>();
-            for (int i = 0; i < FloatName.Length; i++)
+            for (int i = 0; i < FloatNames.Length; i++)
             {
-                if (MemberRMode[i] == ThreadUtil.ReflectionMode.Property)
+                if (MemberRModes[i] == ThreadUtil.ReflectionMode.Property)
                 {
-                    var info = instance.GetType().GetProperty(FloatName[i]);
+                    var info = instance.GetType().GetProperty(FloatNames[i]);
                     if (info != null)
                     {
                         var m_get = info.GetGetMethod();
                         if (m_get != null)
                         {
                             var get_func = DelegateUtil.MethodConverter.CreateFunc(m_get, instance.GetType(), typeof(float));
-                            accessor_cache.Getters.Add(FloatName[i], () => { return (float)get_func(instance); });
+                            accessor_cache.Getters.Add(FloatNames[i], () => { return (float)get_func(instance); });
                         }
                         var m_set = info.GetSetMethod();
                         if (m_set != null)
                         {
                             var set_func = DelegateUtil.MethodConverter.CreateAction(m_set, instance.GetType(), typeof(float));
-                            accessor_cache.Setters.Add(FloatName[i], (float v) => { set_func(instance, v); });
+                            accessor_cache.Setters.Add(FloatNames[i], (float v) => { set_func(instance, v); });
                         }
                     }
                 }
@@ -191,26 +192,26 @@ namespace TS.TSEffect.Effect
         #region Evaluate
         private void EvaluateFloat(Component instance, int index, float time, AccessorDict<float> accessor_cache, CacheDict cache)
         {
-            switch (FloatThread[index].Mode)
+            switch (FloatThreads[index].Mode)
             {
                 case DataVaryingMode.Increment:
                     #region Reflection Set
                     {
-                        float res = cache.GetValue("initial").Value_Float + FloatThread[index].Target * FloatThread[index].Behavior.Evaluate(time);
-                        switch (MemberRMode[index])
+                        float res = cache.GetValue("initial").Value_Float + FloatThreads[index].Target * FloatThreads[index].Behavior.Evaluate(time);
+                        switch (MemberRModes[index])
                         {
                             case ThreadUtil.ReflectionMode.Field:
-                                instance.GetType().GetField(FloatName[index]).SetValue(instance, res);
+                                instance.GetType().GetField(FloatNames[index]).SetValue(instance, res);
                                 break;
                             case ThreadUtil.ReflectionMode.Property:
                                 Action<float> func = null;
-                                if (accessor_cache.Setters.TryGetValue(FloatName[index], out func))
+                                if (accessor_cache.Setters.TryGetValue(FloatNames[index], out func))
                                 {
                                     func(res);
                                 }
                                 else
                                 {
-                                    instance.GetType().GetProperty(FloatName[index]).SetValue(instance, res);
+                                    instance.GetType().GetProperty(FloatNames[index]).SetValue(instance, res);
                                 }
                                 break;
                         }
@@ -220,21 +221,21 @@ namespace TS.TSEffect.Effect
                 case DataVaryingMode.Target:
                     #region Reflection Set
                     {
-                        float res = Mathf.Lerp(cache.GetValue("initial").Value_Float, FloatThread[index].Target, FloatThread[index].Behavior.Evaluate(time));
-                        switch (MemberRMode[index])
+                        float res = Mathf.Lerp(cache.GetValue("initial").Value_Float, FloatThreads[index].Target, FloatThreads[index].Behavior.Evaluate(time));
+                        switch (MemberRModes[index])
                         {
                             case ThreadUtil.ReflectionMode.Field:
-                                instance.GetType().GetField(FloatName[index]).SetValue(instance, res);
+                                instance.GetType().GetField(FloatNames[index]).SetValue(instance, res);
                                 break;
                             case ThreadUtil.ReflectionMode.Property:
                                 Action<float> func = null;
-                                if (accessor_cache.Setters.TryGetValue(FloatName[index], out func))
+                                if (accessor_cache.Setters.TryGetValue(FloatNames[index], out func))
                                 {
                                     func(res);
                                 }
                                 else
                                 {
-                                    instance.GetType().GetProperty(FloatName[index]).SetValue(instance, res);
+                                    instance.GetType().GetProperty(FloatNames[index]).SetValue(instance, res);
                                 }
                                 break;
                         }
@@ -272,24 +273,31 @@ namespace TS.TSEffect.Effect
                 RMode = (ThreadUtil.ReflectionMode)EditorGUI.EnumPopup(rect1, RMode);
                 if (GUI.Button(rect2, "Refresh " + RMode.ToString()))
                 {
-                    Type type = Type.GetType(TargetType);
+                    Type type = null;
+                    Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+                    foreach (var assembly in assemblies)
+                    {
+                        type = assembly.GetType(TargetType);
+                        if (type != null) break;
+                    }
+
                     if (type != null)
                     {
-                        ThreadUtil.ReflectionMode[] member_r_mode = new ThreadUtil.ReflectionMode[0];
-                        string[] member_name = new string[0];
-                        Varying<float>[] thread = new Varying<float>[0];
-                        ThreadUtil.TryBuildThreadsFromComponent(type, RMode, out member_r_mode, out member_name, out thread);
+                        ThreadUtil.ReflectionMode[] member_r_modes;
+                        string[] member_names;
+                        Varying<float>[] threads;
+                        ThreadUtil.TryBuildThreadsFromComponent(type, RMode, out member_r_modes, out member_names, out threads);
                         
                         bool refresh = false;
-                        if (FloatName.Length != member_name.Length)
+                        if (FloatNames.Length != member_names.Length)
                         {
                             refresh = true;
                         }
                         else
                         {
-                            for (int i = 0; i < FloatName.Length; i++)
+                            for (int i = 0; i < FloatNames.Length; i++)
                             {
-                                if (FloatName[i] != member_name[i])
+                                if (FloatNames[i] != member_names[i])
                                 {
                                     refresh = true;
                                     break;
@@ -298,10 +306,16 @@ namespace TS.TSEffect.Effect
                         }
                         if (refresh)
                         {
-                            MemberRMode = member_r_mode;
-                            FloatName = member_name;
-                            FloatThread = thread;
+                            MemberRModes = member_r_modes;
+                            FloatNames = member_names;
+                            FloatThreads = threads;
                         }
+                    }
+                    else
+                    {
+                        MemberRModes = new ThreadUtil.ReflectionMode[0];
+                        FloatNames = new string[0];
+                        FloatThreads = new Varying<float>[0];
                     }
                 }
             }
@@ -321,14 +335,14 @@ namespace TS.TSEffect.Effect
                 {
                     _TargetType = mono.GetType().FullName;
                 }
-                for (int i = 0; i < FloatThread.Length; i++)
+                for (int i = 0; i < FloatThreads.Length; i++)
                 {
-                    TSEffectGUILayout.FullVaryingThreadField(FloatThread[i], true, FloatName[i], () =>
+                    TSEffectGUILayout.FullVaryingThreadField(FloatThreads[i], true, FloatNames[i], () =>
                     {
                         EditorGUILayout.BeginHorizontal();
-                        GUILayout.Label(FloatName[i]);
-                        FloatThread[i].Target = EditorGUILayout.FloatField("", FloatThread[i].Target, GUILayout.MaxWidth(217));
-                        FloatThread[i].Mode = (DataVaryingMode)EditorGUILayout.EnumPopup(FloatThread[i].Mode, GUILayout.MaxWidth(80));
+                        GUILayout.Label(FloatNames[i]);
+                        FloatThreads[i].Target = EditorGUILayout.FloatField("", FloatThreads[i].Target, GUILayout.MaxWidth(217));
+                        FloatThreads[i].Mode = (DataVaryingMode)EditorGUILayout.EnumPopup(FloatThreads[i].Mode, GUILayout.MaxWidth(80));
                         EditorGUILayout.EndHorizontal();
                     });
                 }

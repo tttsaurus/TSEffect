@@ -18,16 +18,16 @@ namespace TS.TSEffect.Util
             Property = 2,
             Combined = 3,
         }
-        public static void BuildThreadsFromComponent<TThread, TCom>(ReflectionMode r_mode, out ReflectionMode[] member_r_mode, out string[] member_name, out TThread[] thread) where TThread : BaseThread where TCom : Component
+        public static void BuildThreadsFromComponent<TThread, TCom>(ReflectionMode r_mode, out ReflectionMode[] member_r_modes, out string[] member_names, out TThread[] threads) where TThread : BaseThread where TCom : Component
         {
-            member_r_mode = new ReflectionMode[0];
-            member_name = new string[0];
-            thread = new TThread[0];
+            member_r_modes = new ReflectionMode[0];
+            member_names = new string[0];
+            threads = new TThread[0];
 
             #region Reflection
             Type target_type = null;
-            Type[] generic = typeof(TThread).GetGenericArguments();
-            if (generic.Length == 0)
+            Type[] args = typeof(TThread).GetGenericArguments();
+            if (args.Length == 0)
             {
                 return;
             }
@@ -35,11 +35,11 @@ namespace TS.TSEffect.Util
             {
                 if (typeof(TThread).GetGenericTypeDefinition() == typeof(Varying<>))
                 {
-                    target_type = generic[0];
+                    target_type = args[0];
                 }
                 else if (typeof(TThread).GetGenericTypeDefinition() == typeof(Triggering<>))
                 {
-                    target_type = generic[0];
+                    target_type = args[0];
                 }
                 else
                 {
@@ -47,98 +47,98 @@ namespace TS.TSEffect.Util
                 }
             }
 
-            FieldInfo[] field_info = null;
-            PropertyInfo[] property_info = null;
+            FieldInfo[] field_infos = null;
+            PropertyInfo[] property_infos = null;
 
-            List<ReflectionMode> _member_r_mode = new List<ReflectionMode>();
-            List<string> _member_name = new List<string>();
-            List<TThread> _thread = new List<TThread>();
+            List<ReflectionMode> _member_r_modes = new List<ReflectionMode>();
+            List<string> _member_names = new List<string>();
+            List<TThread> _threads = new List<TThread>();
 
             Type type = typeof(TCom);
 
             switch (r_mode)
             {
                 case ReflectionMode.Field:
-                    field_info = type.GetFields();
+                    field_infos = type.GetFields();
                     break;
                 case ReflectionMode.Property:
-                    property_info = type.GetProperties();
+                    property_infos = type.GetProperties();
                     break;
                 case ReflectionMode.Combined:
-                    field_info = type.GetFields();
-                    property_info = type.GetProperties();
+                    field_infos = type.GetFields();
+                    property_infos = type.GetProperties();
                     break;
             }
             switch (r_mode)
             {
                 case ReflectionMode.Field:
-                    for (int i = 0; i < field_info.Length; i++)
+                    for (int i = 0; i < field_infos.Length; i++)
                     {
-                        if (field_info[i].FieldType == target_type)
+                        if (field_infos[i].FieldType == target_type)
                         {
-                            _member_r_mode.Add(ReflectionMode.Field);
-                            _member_name.Add(field_info[i].Name);
+                            _member_r_modes.Add(ReflectionMode.Field);
+                            _member_names.Add(field_infos[i].Name);
                             var t = Activator.CreateInstance(typeof(TThread)) as TThread;
                             t.Reset();
-                            _thread.Add(t);
+                            _threads.Add(t);
                         }
                     }
                     break;
                 case ReflectionMode.Property:
-                    for (int i = 0; i < property_info.Length; i++)
+                    for (int i = 0; i < property_infos.Length; i++)
                     {
-                        if (property_info[i].PropertyType == target_type)
+                        if (property_infos[i].PropertyType == target_type)
                         {
-                            _member_r_mode.Add(ReflectionMode.Property);
-                            _member_name.Add(property_info[i].Name);
+                            _member_r_modes.Add(ReflectionMode.Property);
+                            _member_names.Add(property_infos[i].Name);
                             var t = Activator.CreateInstance(typeof(TThread)) as TThread;
                             t.Reset();
-                            _thread.Add(t);
+                            _threads.Add(t);
                         }
                     }
                     break;
                 case ReflectionMode.Combined:
-                    for (int i = 0; i < field_info.Length; i++)
+                    for (int i = 0; i < field_infos.Length; i++)
                     {
-                        if (field_info[i].FieldType == target_type)
+                        if (field_infos[i].FieldType == target_type)
                         {
-                            _member_r_mode.Add(ReflectionMode.Field);
-                            _member_name.Add(field_info[i].Name);
+                            _member_r_modes.Add(ReflectionMode.Field);
+                            _member_names.Add(field_infos[i].Name);
                             var t = Activator.CreateInstance(typeof(TThread)) as TThread;
                             t.Reset();
-                            _thread.Add(t);
+                            _threads.Add(t);
                         }
                     }
-                    for (int i = 0; i < property_info.Length; i++)
+                    for (int i = 0; i < property_infos.Length; i++)
                     {
-                        if (property_info[i].PropertyType == target_type)
+                        if (property_infos[i].PropertyType == target_type)
                         {
-                            _member_r_mode.Add(ReflectionMode.Property);
-                            _member_name.Add(property_info[i].Name);
+                            _member_r_modes.Add(ReflectionMode.Property);
+                            _member_names.Add(property_infos[i].Name);
                             var t = Activator.CreateInstance(typeof(TThread)) as TThread;
                             t.Reset();
-                            _thread.Add(t);
+                            _threads.Add(t);
                         }
                     }
                     break;
             }
 
-            member_r_mode = _member_r_mode.ToArray();
-            member_name = _member_name.ToArray();
-            thread = _thread.ToArray();
+            member_r_modes = _member_r_modes.ToArray();
+            member_names = _member_names.ToArray();
+            threads = _threads.ToArray();
             #endregion
         }
-        public static bool TryBuildThreadsFromComponent<TThread>(Type com_type, ReflectionMode r_mode, out ReflectionMode[] member_r_mode, out string[] member_name, out TThread[] thread) where TThread : BaseThread
+        public static bool TryBuildThreadsFromComponent<TThread>(Type com_type, ReflectionMode r_mode, out ReflectionMode[] member_r_modes, out string[] member_names, out TThread[] threads) where TThread : BaseThread
         {
-            member_r_mode = new ReflectionMode[0];
-            member_name = new string[0];
-            thread = new TThread[0];
+            member_r_modes = new ReflectionMode[0];
+            member_names = new string[0];
+            threads = new TThread[0];
 
             #region Reflection
             if (!typeof(Component).IsAssignableFrom(com_type)) return false;
             Type target_type = null;
-            Type[] generic = typeof(TThread).GetGenericArguments();
-            if (generic.Length == 0)
+            Type[] args = typeof(TThread).GetGenericArguments();
+            if (args.Length == 0)
             {
                 return false;
             }
@@ -146,11 +146,11 @@ namespace TS.TSEffect.Util
             {
                 if (typeof(TThread).GetGenericTypeDefinition() == typeof(Varying<>))
                 {
-                    target_type = generic[0];
+                    target_type = args[0];
                 }
                 else if (typeof(TThread).GetGenericTypeDefinition() == typeof(Triggering<>))
                 {
-                    target_type = generic[0];
+                    target_type = args[0];
                 }
                 else
                 {
@@ -158,83 +158,83 @@ namespace TS.TSEffect.Util
                 }
             }
 
-            FieldInfo[] field_info = null;
-            PropertyInfo[] property_info = null;
+            FieldInfo[] field_infos = null;
+            PropertyInfo[] property_infos = null;
 
-            List<ReflectionMode> _member_r_mode = new List<ReflectionMode>();
-            List<string> _member_name = new List<string>();
-            List<TThread> _thread = new List<TThread>();
+            List<ReflectionMode> _member_r_modes = new List<ReflectionMode>();
+            List<string> _member_names = new List<string>();
+            List<TThread> _threads = new List<TThread>();
 
             switch (r_mode)
             {
                 case ReflectionMode.Field:
-                    field_info = com_type.GetFields();
+                    field_infos = com_type.GetFields();
                     break;
                 case ReflectionMode.Property:
-                    property_info = com_type.GetProperties();
+                    property_infos = com_type.GetProperties();
                     break;
                 case ReflectionMode.Combined:
-                    field_info = com_type.GetFields();
-                    property_info = com_type.GetProperties();
+                    field_infos = com_type.GetFields();
+                    property_infos = com_type.GetProperties();
                     break;
             }
             switch (r_mode)
             {
                 case ReflectionMode.Field:
-                    for (int i = 0; i < field_info.Length; i++)
+                    for (int i = 0; i < field_infos.Length; i++)
                     {
-                        if (field_info[i].FieldType == target_type)
+                        if (field_infos[i].FieldType == target_type)
                         {
-                            _member_r_mode.Add(ReflectionMode.Field);
-                            _member_name.Add(field_info[i].Name);
+                            _member_r_modes.Add(ReflectionMode.Field);
+                            _member_names.Add(field_infos[i].Name);
                             var t = Activator.CreateInstance(typeof(TThread)) as TThread;
                             t.Reset();
-                            _thread.Add(t);
+                            _threads.Add(t);
                         }
                     }
                     break;
                 case ReflectionMode.Property:
-                    for (int i = 0; i < property_info.Length; i++)
+                    for (int i = 0; i < property_infos.Length; i++)
                     {
-                        if (property_info[i].PropertyType == target_type)
+                        if (property_infos[i].PropertyType == target_type)
                         {
-                            _member_r_mode.Add(ReflectionMode.Property);
-                            _member_name.Add(property_info[i].Name);
+                            _member_r_modes.Add(ReflectionMode.Property);
+                            _member_names.Add(property_infos[i].Name);
                             var t = Activator.CreateInstance(typeof(TThread)) as TThread;
                             t.Reset();
-                            _thread.Add(t);
+                            _threads.Add(t);
                         }
                     }
                     break;
                 case ReflectionMode.Combined:
-                    for (int i = 0; i < field_info.Length; i++)
+                    for (int i = 0; i < field_infos.Length; i++)
                     {
-                        if (field_info[i].FieldType == target_type)
+                        if (field_infos[i].FieldType == target_type)
                         {
-                            _member_r_mode.Add(ReflectionMode.Field);
-                            _member_name.Add(field_info[i].Name);
+                            _member_r_modes.Add(ReflectionMode.Field);
+                            _member_names.Add(field_infos[i].Name);
                             var t = Activator.CreateInstance(typeof(TThread)) as TThread;
                             t.Reset();
-                            _thread.Add(t);
+                            _threads.Add(t);
                         }
                     }
-                    for (int i = 0; i < property_info.Length; i++)
+                    for (int i = 0; i < property_infos.Length; i++)
                     {
-                        if (property_info[i].PropertyType == target_type)
+                        if (property_infos[i].PropertyType == target_type)
                         {
-                            _member_r_mode.Add(ReflectionMode.Property);
-                            _member_name.Add(property_info[i].Name);
+                            _member_r_modes.Add(ReflectionMode.Property);
+                            _member_names.Add(property_infos[i].Name);
                             var t = Activator.CreateInstance(typeof(TThread)) as TThread;
                             t.Reset();
-                            _thread.Add(t);
+                            _threads.Add(t);
                         }
                     }
                     break;
             }
 
-            member_r_mode = _member_r_mode.ToArray();
-            member_name = _member_name.ToArray();
-            thread = _thread.ToArray();
+            member_r_modes = _member_r_modes.ToArray();
+            member_names = _member_names.ToArray();
+            threads = _threads.ToArray();
 
             #endregion
 
