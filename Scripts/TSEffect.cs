@@ -315,7 +315,7 @@ namespace TS.TSEffect
                 _Metadata = res;
             }
 #if UNITY_EDITOR
-            _Metadata.BuiltinEffectCollectionsPath.Clear();
+            _Metadata.BuiltinEffectCollectionPaths.Clear();
             string folder_path = Application.dataPath + "/Resources/TSEffect";
             if (Directory.Exists(folder_path))
             {
@@ -332,7 +332,7 @@ namespace TS.TSEffect
                         {
                             if (coll.IsBuiltin)
                             {
-                                _Metadata.BuiltinEffectCollectionsPath.Add(r_path);
+                                _Metadata.BuiltinEffectCollectionPaths.Add(r_path);
                                 Resources.UnloadAsset(coll);
                             }
                         }
@@ -386,14 +386,14 @@ namespace TS.TSEffect
 #if UNITY_EDITOR
             bool remove = false;
 #endif
-            for (int i = 0; i < _Metadata.BuiltinEffectCollectionsPath.Count; i++)
+            for (int i = 0; i < _Metadata.BuiltinEffectCollectionPaths.Count; i++)
             {
-                string path = _Metadata.BuiltinEffectCollectionsPath[i];
+                string path = _Metadata.BuiltinEffectCollectionPaths[i];
                 var coll = Resources.Load<TSEffectCollection>(path);
                 if (coll == null)
                 {
 #if UNITY_EDITOR
-                    _Metadata.BuiltinEffectCollectionsPath.Remove(path);
+                    _Metadata.BuiltinEffectCollectionPaths.Remove(path);
                     remove = true;
 #endif
                 }

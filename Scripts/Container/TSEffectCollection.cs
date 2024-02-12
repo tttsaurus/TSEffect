@@ -90,14 +90,14 @@ namespace TS.TSEffect.Container
 
                             if (Coll.IsBuiltin)
                             {
-                                if (!TSEffect.Metadata.BuiltinEffectCollectionsPath.Contains(r_path))
+                                if (!TSEffect.Metadata.BuiltinEffectCollectionPaths.Contains(r_path))
                                 {
-                                    TSEffect.Metadata.BuiltinEffectCollectionsPath.Add(r_path);
+                                    TSEffect.Metadata.BuiltinEffectCollectionPaths.Add(r_path);
                                     EditorUtility.SetDirty(TSEffect.Metadata);
                                 }
                             }
                             else
-                                TSEffect.Metadata.BuiltinEffectCollectionsPath.Remove(r_path);
+                                TSEffect.Metadata.BuiltinEffectCollectionPaths.Remove(r_path);
 
                             EditorUtility.SetDirty(Coll);
                             AssetDatabase.SaveAssets();

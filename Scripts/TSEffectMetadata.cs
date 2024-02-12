@@ -55,9 +55,9 @@ namespace TS.TSEffect
         [SerializeField]
         private string[] _EffectTypes = new string[0];
 
-        public List<string> BuiltinEffectCollectionsPath { get { return _BuiltinEffectCollectionsPath; } }
+        public List<string> BuiltinEffectCollectionPaths { get { return _BuiltinEffectCollectionPaths; } }
         [SerializeField]
-        private List<string> _BuiltinEffectCollectionsPath = new List<string>();
+        private List<string> _BuiltinEffectCollectionPaths = new List<string>();
 
         public Dictionary<Type, EffectRegistration> EffectCache { get { return _EffectCache; } }
         [NonSerialized]
