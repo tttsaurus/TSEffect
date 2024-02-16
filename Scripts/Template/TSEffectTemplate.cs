@@ -34,9 +34,9 @@ namespace TS.TSEffect.Template
         public bool Enable { get { return _Enable; } set { _Enable = value; } }
         [SerializeField]
         private bool _Enable;
-        public string TargetType { get { return _TargetType; } }
+        public string TargetType { get { return _TargetType; } protected set { _TargetType = value; } }
         [SerializeField]
-        protected string _TargetType;
+        private string _TargetType;
 
         #region GUI
         public void InitEditorAnim()

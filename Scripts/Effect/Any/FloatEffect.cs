@@ -333,7 +333,7 @@ namespace TS.TSEffect.Effect
                 EditorGUILayout.EndHorizontal();
                 if (mono != null)
                 {
-                    _TargetType = mono.GetType().FullName;
+                    TargetType = mono.GetType().FullName;
                 }
                 for (int i = 0; i < FloatThreads.Length; i++)
                 {
