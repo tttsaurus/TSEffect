@@ -15,6 +15,15 @@ namespace TS.TSEffect.Container
 
         bool IsBuiltinChoiceGUIDisplayed = false;
 
+        void SetToNotBuiltin()
+        {
+            Coll.IsBuiltin = false;
+            Coll.ID = string.Empty;
+            EditorUtility.SetDirty(Coll);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+        }
+
         private void OnEnable()
         {
             Coll = target as TSEffectCollection;
@@ -48,11 +57,7 @@ namespace TS.TSEffect.Container
             }
             if (!IsBuiltinChoiceGUIDisplayed)
             {
-                Coll.IsBuiltin = false;
-                Coll.ID = string.Empty;
-                EditorUtility.SetDirty(Coll);
-                AssetDatabase.SaveAssets();
-                AssetDatabase.Refresh();
+                SetToNotBuiltin();
             }
         }
 
@@ -105,21 +110,13 @@ namespace TS.TSEffect.Container
                         }
                         else
                         {
-                            Coll.IsBuiltin = false;
-                            Coll.ID = string.Empty;
-                            EditorUtility.SetDirty(Coll);
-                            AssetDatabase.SaveAssets();
-                            AssetDatabase.Refresh();
+                            SetToNotBuiltin();
                             IsBuiltinChoiceGUIDisplayed = false;
                         }
                     }
                     else
                     {
-                        Coll.IsBuiltin = false;
-                        Coll.ID = string.Empty;
-                        EditorUtility.SetDirty(Coll);
-                        AssetDatabase.SaveAssets();
-                        AssetDatabase.Refresh();
+                        SetToNotBuiltin();
                         IsBuiltinChoiceGUIDisplayed = false;
                     }
                 }
