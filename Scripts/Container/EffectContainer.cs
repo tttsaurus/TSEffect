@@ -8,7 +8,7 @@ using UnityEngine;
 namespace TS.TSEffect.Container
 {
     [Serializable]
-    public class EffectsContainer
+    public class EffectContainer
     {
         public int Count { get { return _Effects.Count; } }
         [SerializeField]

@@ -185,6 +185,6 @@ namespace TS.TSEffect.Container
     {
         public bool IsBuiltin = false;
         public string ID = string.Empty;
-        public EffectsContainer Container = new EffectsContainer();
+        public EffectContainer Container = new EffectContainer();
     }
 }

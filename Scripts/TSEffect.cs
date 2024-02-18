@@ -130,7 +130,7 @@ namespace TS.TSEffect
         /// <param name="e_id">The ID is the key for the corresponding effects.</param>
         /// <param name="cont">The container stores the effects.</param>
         /// <returns>It returns whether the behavior succeed.</returns>
-        public static bool AddExecutables(string e_id, EffectsContainer cont)
+        public static bool AddExecutables(string e_id, EffectContainer cont)
         {
             if (_ExeCoreDict.ContainsKey(e_id))
             {
