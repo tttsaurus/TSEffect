@@ -38,7 +38,7 @@ namespace TS.TSEffect
         }
         public static SortedSet<ThreadExecutor> RuntimeExecutors { get {  return _RuntimeExecutors; } }
         private static SortedSet<ThreadExecutor> _RuntimeExecutors = new SortedSet<ThreadExecutor>(new ThreadExecutorComparer());
-        private static List<RECallback> _RuntimeExecutorsCallbacks = new List<RECallback>();
+        private static List<RECallback> _RECallbacks = new List<RECallback>();
         private static Dictionary<Guid, ThreadExecutor> _SuspendedExecutors = new Dictionary<Guid, ThreadExecutor>();
 
         public static TSEffectMetadata Metadata { get { return _Metadata; } }
@@ -219,13 +219,13 @@ namespace TS.TSEffect
                             }
                         }
 
-                        _RuntimeExecutorsCallbacks.Add(new RECallback(executor, RECallbackType.Desuspend));
+                        _RECallbacks.Add(new RECallback(executor, RECallbackType.Desuspend));
                     }
                     else
                     {
                         executor = new ThreadExecutor(list[i], channel);
-                        executor.SetRemoveCallback(() => { _RuntimeExecutorsCallbacks.Add(new RECallback(executor, RECallbackType.Remove)); });
-                        executor.SetSuspendCallback(() => { _RuntimeExecutorsCallbacks.Add(new RECallback(executor, RECallbackType.Suspend)); });
+                        executor.SetRemoveCallback(() => { _RECallbacks.Add(new RECallback(executor, RECallbackType.Remove)); });
+                        executor.SetSuspendCallback(() => { _RECallbacks.Add(new RECallback(executor, RECallbackType.Suspend)); });
 
                         List<Component> b;
                         if (a != null)
@@ -236,7 +236,7 @@ namespace TS.TSEffect
                             }
                         }
 
-                        _RuntimeExecutorsCallbacks.Add(new RECallback(executor, RECallbackType.Add));
+                        _RECallbacks.Add(new RECallback(executor, RECallbackType.Add));
                     }
                 }
                 return true;
@@ -248,33 +248,33 @@ namespace TS.TSEffect
         /// Don't call it manually.
         /// This function will be called automatically at runtime.
         /// </summary>
-        public static void ExecuteCallbacks()
+        public static void ExecuteRECallbacks()
         {
-            if (_RuntimeExecutorsCallbacks.Count > 0)
+            if (_RECallbacks.Count > 0)
             {
-                for (int i = 0; i < _RuntimeExecutorsCallbacks.Count; i++)
+                for (int i = 0; i < _RECallbacks.Count; i++)
                 {
-                    switch (_RuntimeExecutorsCallbacks[i].CallbackType)
+                    switch (_RECallbacks[i].CallbackType)
                     {
                         case RECallbackType.Remove:
-                            _RuntimeExecutors.Remove(_RuntimeExecutorsCallbacks[i].Executor);
+                            _RuntimeExecutors.Remove(_RECallbacks[i].Executor);
                             break;
                         case RECallbackType.Add:
-                            _RuntimeExecutors.Add(_RuntimeExecutorsCallbacks[i].Executor);
+                            _RuntimeExecutors.Add(_RECallbacks[i].Executor);
                             break;
                         case RECallbackType.Suspend:
-                            Guid guid = _RuntimeExecutorsCallbacks[i].Executor.ExeThreadCore.Thread.GUID;
+                            Guid guid = _RECallbacks[i].Executor.ExeThreadCore.Thread.GUID;
                             if (_SuspendedExecutors.ContainsKey(guid))
-                                _RuntimeExecutors.Remove(_RuntimeExecutorsCallbacks[i].Executor);
+                                _RuntimeExecutors.Remove(_RECallbacks[i].Executor);
                             else
-                                _SuspendedExecutors.Add(guid, _RuntimeExecutorsCallbacks[i].Executor);
+                                _SuspendedExecutors.Add(guid, _RECallbacks[i].Executor);
                             break;
                         case RECallbackType.Desuspend:
-                            _RuntimeExecutorsCallbacks[i].Executor.Desuspend();
+                            _RECallbacks[i].Executor.Desuspend();
                             break;
                     }
                 }
-                _RuntimeExecutorsCallbacks.Clear();
+                _RECallbacks.Clear();
             }
         }
         

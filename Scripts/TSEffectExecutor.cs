@@ -72,7 +72,7 @@ namespace TS.TSEffect
             {
                 exe.Update();
             }
-            TSEffect.ExecuteCallbacks();
+            TSEffect.ExecuteRECallbacks();
         }
     }
 }
