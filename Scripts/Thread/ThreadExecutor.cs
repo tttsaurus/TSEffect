@@ -166,20 +166,32 @@ namespace TS.TSEffect.Thread
         }
         public void Pause()
         {
-            _IsPaused = true;
+            if (!_IsPaused)
+            {
+                _IsPaused = true;
+            }
         }
         public void Continue()
         {
-            _IsPaused = false;
+            if (_IsPaused)
+            {
+                _IsPaused = false;
+            }
         }
         public void Suspend()
         {
-            _IsSuspended = true;
-            RuntimeInit();
+            if (!_IsSuspended)
+            {
+                _IsSuspended = true;
+                RuntimeInit();
+            }
         }
         public void Desuspend()
         {
-            _IsSuspended = false;
+            if (_IsSuspended)
+            {
+                _IsSuspended = false;
+            }
         }
         public void RuntimeInit()
         {
