@@ -256,8 +256,7 @@ namespace TS.TSEffect.Thread
                 {
                     if (_RuntimeComs.ContainsKey(com))
                     {
-                        var c = com as Component;
-                        _RuntimeComs.Remove(c);
+                        _RuntimeComs.Remove(com);
                         return true;
                     }
                 }

@@ -56,40 +56,46 @@ namespace TS.TSEffect
         {
             string target_type = typeof(T).FullName;
 
-            bool flag_a = false;
+            bool has_a = true;
             Dictionary<string, List<Component>> a;
             if (!_Subject.TryGetValue(channel, out a))
             {
                 a = new Dictionary<string, List<Component>>();
                 _Subject.Add(channel, a);
-                flag_a = true;
+                has_a = false;
             }
 
-            bool flag_b = false;
+            bool has_b = has_a;
             List<Component> b;
-            if (flag_a)
+            if (!has_a)
             {
                 b = new List<Component>();
-                _Subject[channel].Add(target_type, b);
-                flag_b = true;
+                a.Add(target_type, b);
             }
-            else if (!a.TryGetValue(target_type, out b))
+            else if (a.TryGetValue(target_type, out b))
+            {
+                a.Add(target_type, b);
+            }
+            else
             {
                 b = new List<Component>();
-                _Subject[channel].Add(target_type, b);
-                flag_b = true;
+                a.Add(target_type, b);
+                has_b = false;
             }
 
-            if (flag_b)
+            if (has_b)
             {
-                b.Add(com);
-                var etor = _RuntimeExecutors.GetEnumerator();
-                while(etor.MoveNext())
+                if (!b.Contains(com))
                 {
-                    etor.Current.AddRuntimeTarget(com, channel);
+                    b.Add(com);
+                    var etor = _RuntimeExecutors.GetEnumerator();
+                    while (etor.MoveNext())
+                    {
+                        etor.Current.AddRuntimeTarget(com, channel);
+                    }
                 }
             }
-            else if (!b.Contains(com))
+            else
             {
                 b.Add(com);
                 var etor = _RuntimeExecutors.GetEnumerator();
@@ -210,9 +216,9 @@ namespace TS.TSEffect
                     {
                         _SuspendedExecutors.Remove(list[i].Thread.GUID);
                         
-                        List<Component> b;
                         if (a != null)
                         {
+                            List<Component> b;
                             if (a.TryGetValue(list[i].TargetType, out b))
                             {
                                 executor.ResetRuntimeTargets(b);
@@ -227,9 +233,9 @@ namespace TS.TSEffect
                         executor.SetRemoveCallback(() => { _RECallbacks.Add(new RECallback(executor, RECallbackType.Remove)); });
                         executor.SetSuspendCallback(() => { _RECallbacks.Add(new RECallback(executor, RECallbackType.Suspend)); });
 
-                        List<Component> b;
                         if (a != null)
                         {
+                            List<Component> b;
                             if (a.TryGetValue(list[i].TargetType, out b))
                             {
                                 executor.ResetRuntimeTargets(b);
