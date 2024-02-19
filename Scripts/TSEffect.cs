@@ -169,7 +169,7 @@ namespace TS.TSEffect
                                 List<NormalExeFuncBuilder> b = new List<NormalExeFuncBuilder>();
                                 List<TimeExeFuncBuilder> c = new List<TimeExeFuncBuilder>();
                                 
-                                effect.GenLogicBuilders(field_name, out a, out b, out c);
+                                effect.GetExeFuncBuilders(field_name, out a, out b, out c);
 
                                 if (list_thread.Count == a.Count && list_thread.Count == b.Count && list_thread.Count == c.Count)
                                 {

@@ -150,7 +150,7 @@ namespace TS.TSEffect.Template
                     GUI.changed = true;
                 }
                 _IsGUIChanged = EditorGUI.EndChangeCheck();
-                
+
                 var area = GUILayoutUtility.GetRect(Screen.width, 1f);
                 EditorGUI.HelpBox(new Rect(area.x - 20, area.y - 0.5f, area.width + 25, area.height), "", MessageType.None);
             }
@@ -187,7 +187,7 @@ namespace TS.TSEffect.Template
             _Enable = true;
             _TargetType = string.Empty;
         }
-        public virtual void GenLogicBuilders(string thread_field_name, out List<NormalExeFuncBuilder> init_exe, out List<NormalExeFuncBuilder> final_exe, out List<TimeExeFuncBuilder> on_exe)
+        public virtual void GetExeFuncBuilders(string thread_field_name, out List<NormalExeFuncBuilder> init_exe, out List<NormalExeFuncBuilder> final_exe, out List<TimeExeFuncBuilder> on_exe)
         {
             init_exe = new List<NormalExeFuncBuilder>();
             final_exe = new List<NormalExeFuncBuilder>();

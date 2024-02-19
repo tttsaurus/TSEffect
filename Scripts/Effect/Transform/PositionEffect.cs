@@ -20,9 +20,9 @@ namespace TS.TSEffect.Effect
         public Varying<Vector3> Position;
         public bool IsWorldPos;
         
-        public override void GenLogicBuilders(string thread_field_name, out List<NormalExeFuncBuilder> init_exe, out List<NormalExeFuncBuilder> final_exe, out List<TimeExeFuncBuilder> on_exe)
+        public override void GetExeFuncBuilders(string thread_field_name, out List<NormalExeFuncBuilder> init_exe, out List<NormalExeFuncBuilder> final_exe, out List<TimeExeFuncBuilder> on_exe)
         {
-            base.GenLogicBuilders(thread_field_name, out init_exe, out final_exe, out on_exe);
+            base.GetExeFuncBuilders(thread_field_name, out init_exe, out final_exe, out on_exe);
 
             #region Position
             if (thread_field_name == "Position")
