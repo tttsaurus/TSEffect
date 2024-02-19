@@ -29,50 +29,35 @@ namespace TS.TSEffect.Effect
                 init_exe.Add((Component tar) =>
                 {
                     var instance = tar as Transform;
-                    if (Scale.Enable)
+                    return (CacheDict cache) =>
                     {
-                        return (CacheDict cache) =>
-                        {
-                            CacheObj obj = new CacheObj();
-                            obj.Value_UnityEngine_Vector3 = instance.localScale;
-                            cache.Overwrite("initial", obj);
-                        };
-                    }
-                    else
-                        return null;
+                        CacheObj obj = new CacheObj();
+                        obj.Value_UnityEngine_Vector3 = instance.localScale;
+                        cache.Overwrite("initial", obj);
+                    };
                 });
                 final_exe.Add((Component tar) =>
                 {
                     var instance = tar as Transform;
-                    if (Scale.Enable)
+                    return (CacheDict cache) =>
                     {
-                        return (CacheDict cache) =>
+                        if (Scale.Resume)
                         {
-                            if (Scale.Resume)
-                            {
-                                instance.localScale = cache.GetValue("initial").Value_UnityEngine_Vector3;
-                            }
-                            else
-                            {
-                                EvaluateScale(instance, 1f, cache);
-                            }
-                        };
-                    }
-                    else
-                        return null;
+                            instance.localScale = cache.GetValue("initial").Value_UnityEngine_Vector3;
+                        }
+                        else
+                        {
+                            EvaluateScale(instance, 1f, cache);
+                        }
+                    };
                 });
                 on_exe.Add((Component tar) =>
                 {
                     var instance = tar as Transform;
-                    if (Scale.Enable)
+                    return (float time, CacheDict cache) =>
                     {
-                        return (float time, CacheDict cache) =>
-                        {
-                            EvaluateScale(instance, time, cache);
-                        };
-                    }
-                    else
-                        return null;
+                        EvaluateScale(instance, time, cache);
+                    };
                 });
             }
             #endregion

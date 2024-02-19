@@ -40,95 +40,80 @@ namespace TS.TSEffect.Effect
                     init_exe.Add((Component tar) =>
                     {
                         var accessor_cache = GetAccessors(tar);
-                        if (BoolThreads[tmp].Enable)
+                        return (CacheDict cache) =>
                         {
-                            return (CacheDict cache) =>
+                            BoolThreads[tmp].Behavior.BindCache(cache);
+                            #region Reflection Get
+                            switch (MemberRModes[tmp])
                             {
-                                BoolThreads[tmp].Behavior.BindCache(cache);
-                                #region Reflection Get
-                                switch (MemberRModes[tmp])
-                                {
-                                    case ThreadUtil.ReflectionMode.Field:
+                                case ThreadUtil.ReflectionMode.Field:
+                                    {
+                                        CacheObj obj = new CacheObj();
+                                        obj.Value_Bool = (bool)tar.GetType().GetField(BoolNames[tmp]).GetValue(tar);
+                                        cache.Overwrite("initial", obj);
+                                    }
+                                    break;
+                                case ThreadUtil.ReflectionMode.Property:
+                                    {
+                                        Func<bool> func = null;
+                                        if (accessor_cache.Getters.TryGetValue(BoolNames[tmp], out func))
                                         {
                                             CacheObj obj = new CacheObj();
-                                            obj.Value_Bool = (bool)tar.GetType().GetField(BoolNames[tmp]).GetValue(tar);
+                                            obj.Value_Bool = func();
                                             cache.Overwrite("initial", obj);
                                         }
-                                        break;
-                                    case ThreadUtil.ReflectionMode.Property:
+                                        else
                                         {
-                                            Func<bool> func = null;
-                                            if (accessor_cache.Getters.TryGetValue(BoolNames[tmp], out func))
-                                            {
-                                                CacheObj obj = new CacheObj();
-                                                obj.Value_Bool = func();
-                                                cache.Overwrite("initial", obj);
-                                            }
-                                            else
-                                            {
-                                                CacheObj obj = new CacheObj();
-                                                obj.Value_Bool = (bool)tar.GetType().GetProperty(BoolNames[tmp]).GetValue(tar);
-                                                cache.Overwrite("initial", obj);
-                                            }
+                                            CacheObj obj = new CacheObj();
+                                            obj.Value_Bool = (bool)tar.GetType().GetProperty(BoolNames[tmp]).GetValue(tar);
+                                            cache.Overwrite("initial", obj);
                                         }
-                                        break;
-                                }
-                                #endregion
-                            };
-                        }
-                        else
-                            return null;
+                                    }
+                                    break;
+                            }
+                            #endregion
+                        };
                     });
                     final_exe.Add((Component tar) =>
                     {
                         var accessor_cache = GetAccessors(tar);
-                        if (BoolThreads[tmp].Enable)
+                        return (CacheDict cache) =>
                         {
-                            return (CacheDict cache) =>
+                            if (BoolThreads[tmp].Resume)
                             {
-                                if (BoolThreads[tmp].Resume)
+                                #region Reflection Set
+                                switch (MemberRModes[tmp])
                                 {
-                                    #region Reflection Set
-                                    switch (MemberRModes[tmp])
-                                    {
-                                        case ThreadUtil.ReflectionMode.Field:
-                                            tar.GetType().GetField(BoolNames[tmp]).SetValue(tar, cache.GetValue("initial").Value_Bool);
-                                            break;
-                                        case ThreadUtil.ReflectionMode.Property:
-                                            Action<bool> func = null;
-                                            if (accessor_cache.Setters.TryGetValue(BoolNames[tmp], out func))
-                                            {
-                                                func(cache.GetValue("initial").Value_Bool);
-                                            }
-                                            else
-                                            {
-                                                tar.GetType().GetProperty(BoolNames[tmp]).SetValue(tar, cache.GetValue("initial").Value_Bool);
-                                            }
-                                            break;
-                                    }
-                                    #endregion
+                                    case ThreadUtil.ReflectionMode.Field:
+                                        tar.GetType().GetField(BoolNames[tmp]).SetValue(tar, cache.GetValue("initial").Value_Bool);
+                                        break;
+                                    case ThreadUtil.ReflectionMode.Property:
+                                        Action<bool> func = null;
+                                        if (accessor_cache.Setters.TryGetValue(BoolNames[tmp], out func))
+                                        {
+                                            func(cache.GetValue("initial").Value_Bool);
+                                        }
+                                        else
+                                        {
+                                            tar.GetType().GetProperty(BoolNames[tmp]).SetValue(tar, cache.GetValue("initial").Value_Bool);
+                                        }
+                                        break;
                                 }
-                                else
-                                {
-                                    EvaluateBool(tar, tmp, BoolThreads[tmp].Duration, accessor_cache);
-                                }
-                            };
-                        }
-                        else
-                            return null;
+                                #endregion
+                            }
+                            else
+                            {
+                                EvaluateBool(tar, tmp, BoolThreads[tmp].Duration, accessor_cache);
+                            }
+                        };
                     });
                     on_exe.Add((Component tar) =>
                     {
                         var accessor_cache = GetAccessors(tar);
-                        if (BoolThreads[tmp].Enable)
+                        return (float time, CacheDict cache) =>
                         {
-                            return (float time, CacheDict cache) =>
-                            {
-                                EvaluateBool(tar, tmp, time, accessor_cache);
-                            };
-                        }
-                        else
-                            return null;
+                            EvaluateBool(tar, tmp, time, accessor_cache);
+                        };
                     });
                 }
             }

@@ -19,27 +19,27 @@ namespace TS.TSEffect
         private static Dictionary<string, List<ExecutableThreadCore>> _ExeCoreDict = new Dictionary<string, List<ExecutableThreadCore>>();
         private static Dictionary<int, Dictionary<string, List<Component>>> _Subject = new Dictionary<int, Dictionary<string, List<Component>>>();
         
-        private enum RECallbackType
+        private enum RECollectionOperationType
         {
             Remove = 1,
             Add = 2,
-            Suspend = 3,
-            Desuspend = 4,
+            Suspend = 3
         }
-        private struct RECallback
+        private struct RECollectionLateOperation
         {
             public ThreadExecutor Executor;
-            public RECallbackType CallbackType;
-            public RECallback(ThreadExecutor executor, RECallbackType callback_type)
+            public RECollectionOperationType OperationType;
+            public RECollectionLateOperation(ThreadExecutor executor, RECollectionOperationType callback_type)
             {
                 Executor = executor;
-                CallbackType = callback_type;
+                OperationType = callback_type;
             }
         }
+
         public static SortedSet<ThreadExecutor> RuntimeExecutors { get {  return _RuntimeExecutors; } }
         private static SortedSet<ThreadExecutor> _RuntimeExecutors = new SortedSet<ThreadExecutor>(new ThreadExecutorComparer());
-        private static List<RECallback> _RECallbacks = new List<RECallback>();
-        private static Dictionary<Guid, ThreadExecutor> _SuspendedExecutors = new Dictionary<Guid, ThreadExecutor>();
+        private static Dictionary<string, ThreadExecutor> _SuspendedExecutors = new Dictionary<string, ThreadExecutor>();
+        private static List<RECollectionLateOperation> _RELateOperations = new List<RECollectionLateOperation>();
 
         public static TSEffectMetadata Metadata { get { return _Metadata; } }
         private static TSEffectMetadata _Metadata;
@@ -133,12 +133,12 @@ namespace TS.TSEffect
         /// <summary>
         /// Call this function to compile effects and store them in the dictionary with the given ID.
         /// </summary>
-        /// <param name="e_id">The ID is the key for the corresponding effects.</param>
+        /// <param name="id">The ID is the key for the corresponding effects.</param>
         /// <param name="cont">The container stores the effects.</param>
         /// <returns>It returns whether the behavior succeed.</returns>
-        public static bool AddExecutables(string e_id, EffectContainer cont)
+        public static bool AddExecutables(string id, EffectContainer cont)
         {
-            if (_ExeCoreDict.ContainsKey(e_id))
+            if (_ExeCoreDict.ContainsKey(id))
             {
                 return false;
             }
@@ -156,14 +156,14 @@ namespace TS.TSEffect
                     }
                     else
                     {
-                        var reg = Metadata.GetEffectReg(effect.GetType());
+                        var reg = _Metadata.GetEffectReg(effect.GetType());
                         if (reg.Exist)
                         {
                             var etor = reg.ThreadReg.GetEnumerator();
                             while (etor.MoveNext())
                             {
                                 var field_name = etor.Current.Key;
-                                var list_thread = ThreadUtil.GetThreadsFromEffect(effect, field_name);
+                                var threads = ThreadUtil.GetThreadsFromEffect(effect, field_name);
                                 
                                 List<NormalExeFuncBuilder> a = new List<NormalExeFuncBuilder>();
                                 List<NormalExeFuncBuilder> b = new List<NormalExeFuncBuilder>();
@@ -171,17 +171,17 @@ namespace TS.TSEffect
                                 
                                 effect.GetExeFuncBuilders(field_name, out a, out b, out c);
 
-                                if (list_thread.Count == a.Count && list_thread.Count == b.Count && list_thread.Count == c.Count)
+                                if (threads.Count == a.Count && threads.Count == b.Count && threads.Count == c.Count)
                                 {
-                                    for (int j = 0; j < list_thread.Count; j++)
+                                    for (int j = 0; j < threads.Count; j++)
                                     {
-                                        if (list_thread[j].Enable)
-                                            exes.Add(new ExecutableThreadCore(etor.Current.Value.DisplayName, effect.TargetType, list_thread[j], a[j], b[j], c[j]));
+                                        if (threads[j].Enable)
+                                            exes.Add(new ExecutableThreadCore(etor.Current.Value.DisplayName, effect.TargetType, threads[j], a[j], b[j], c[j]));
                                     }
                                 }
                                 else
                                 {
-                                    Debug.LogError(string.Format("Exception from {0}: field {1} contains {2} thread(s) but GenLogicBuilders generates {3}, {4} and {5} logic builders.", effect.GetType().FullName, field_name, list_thread.Count, a.Count, b.Count, c.Count));
+                                    Debug.LogError(string.Format("Exception from {0}: field {1} contains {2} thread(s) but GenLogicBuilders generates {3}, {4} and {5} logic builders.", effect.GetType().FullName, field_name, threads.Count, a.Count, b.Count, c.Count));
                                 }
                             }
                         }
@@ -191,20 +191,20 @@ namespace TS.TSEffect
                 if (exes.Count == 0)
                     return false;
                 else
-                    _ExeCoreDict.Add(e_id, exes);
+                    _ExeCoreDict.Add(id, exes);
                 return true;
             }       
         }
         /// <summary>
         /// Call this function to execute effects.
         /// </summary>
-        /// <param name="e_id">The ID determines what effects are going to be executed.</param>
+        /// <param name="id">The ID determines what effects are going to be executed.</param>
         /// <param name="channel">The channel determines what components are going to listen to the execution.</param>
         /// <returns>It returns whether the behavior succeed.</returns>
-        public static bool Execute(string e_id, int channel)
+        public static bool Execute(string id, int channel)
         {
             List<ExecutableThreadCore> list;
-            if (_ExeCoreDict.TryGetValue(e_id, out list))
+            if (_ExeCoreDict.TryGetValue(id, out list))
             {
                 Dictionary<string, List<Component>> a = null;
                 _Subject.TryGetValue(channel, out a);
@@ -212,26 +212,23 @@ namespace TS.TSEffect
                 for (int i = 0; i < list.Count; i++)
                 {
                     ThreadExecutor executor;
-                    if (_SuspendedExecutors.TryGetValue(list[i].Thread.GUID, out executor))
+                    string executor_id = list[i].GetHashCode().ToString() + channel.ToString();
+                    if (_SuspendedExecutors.TryGetValue(executor_id, out executor))
                     {
-                        _SuspendedExecutors.Remove(list[i].Thread.GUID);
-                        
-                        if (a != null)
-                        {
-                            List<Component> b;
-                            if (a.TryGetValue(list[i].TargetType, out b))
-                            {
-                                executor.ResetRuntimeTargets(b);
-                            }
-                        }
-
-                        _RECallbacks.Add(new RECallback(executor, RECallbackType.Desuspend));
+                        _SuspendedExecutors.Remove(executor_id);
+                        executor.Desuspend();
                     }
                     else
                     {
-                        executor = new ThreadExecutor(list[i], channel);
-                        executor.SetRemoveCallback(() => { _RECallbacks.Add(new RECallback(executor, RECallbackType.Remove)); });
-                        executor.SetSuspendCallback(() => { _RECallbacks.Add(new RECallback(executor, RECallbackType.Suspend)); });
+                        executor = new ThreadExecutor(list[i], channel, executor_id);
+                        executor.SetRemoveCallback(() =>
+                        {
+                            _RELateOperations.Add(new RECollectionLateOperation(executor, RECollectionOperationType.Remove));
+                        });
+                        executor.SetSuspendCallback(() => 
+                        {
+                            _RELateOperations.Add(new RECollectionLateOperation(executor, RECollectionOperationType.Suspend));
+                        });
 
                         if (a != null)
                         {
@@ -242,7 +239,7 @@ namespace TS.TSEffect
                             }
                         }
 
-                        _RECallbacks.Add(new RECallback(executor, RECallbackType.Add));
+                        _RELateOperations.Add(new RECollectionLateOperation(executor, RECollectionOperationType.Add));
                     }
                 }
                 return true;
@@ -254,33 +251,30 @@ namespace TS.TSEffect
         /// Don't call it manually.
         /// This function will be called automatically at runtime.
         /// </summary>
-        public static void ExecuteRECallbacks()
+        public static void ExecuteRELateOperations()
         {
-            if (_RECallbacks.Count > 0)
+            if (_RELateOperations.Count > 0)
             {
-                for (int i = 0; i < _RECallbacks.Count; i++)
+                for (int i = 0; i < _RELateOperations.Count; i++)
                 {
-                    switch (_RECallbacks[i].CallbackType)
+                    switch (_RELateOperations[i].OperationType)
                     {
-                        case RECallbackType.Remove:
-                            _RuntimeExecutors.Remove(_RECallbacks[i].Executor);
+                        case RECollectionOperationType.Remove:
+                            _RuntimeExecutors.Remove(_RELateOperations[i].Executor);
                             break;
-                        case RECallbackType.Add:
-                            _RuntimeExecutors.Add(_RECallbacks[i].Executor);
+                        case RECollectionOperationType.Add:
+                            _RuntimeExecutors.Add(_RELateOperations[i].Executor);
                             break;
-                        case RECallbackType.Suspend:
-                            Guid guid = _RECallbacks[i].Executor.ExeThreadCore.Thread.GUID;
-                            if (_SuspendedExecutors.ContainsKey(guid))
-                                _RuntimeExecutors.Remove(_RECallbacks[i].Executor);
+                        case RECollectionOperationType.Suspend:
+                            string executor_id = _RELateOperations[i].Executor.ExecutorID;
+                            if (_SuspendedExecutors.ContainsKey(executor_id))
+                                _RuntimeExecutors.Remove(_RELateOperations[i].Executor);
                             else
-                                _SuspendedExecutors.Add(guid, _RECallbacks[i].Executor);
-                            break;
-                        case RECallbackType.Desuspend:
-                            _RECallbacks[i].Executor.Desuspend();
+                                _SuspendedExecutors.Add(executor_id, _RELateOperations[i].Executor);
                             break;
                     }
                 }
-                _RECallbacks.Clear();
+                _RELateOperations.Clear();
             }
         }
         

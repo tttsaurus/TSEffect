@@ -43,10 +43,6 @@ namespace TS.TSEffect.Thread
         [SerializeField]
         private int _Priority = 0;
 
-        public Guid GUID { get { return _GUID; } }
-        [SerializeField]
-        private Guid _GUID = Guid.NewGuid();
-
         public virtual void Reset()
         {
 #if UNITY_EDITOR

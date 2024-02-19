@@ -41,94 +41,79 @@ namespace TS.TSEffect.Effect
                     init_exe.Add((Component tar) =>
                     {
                         var accessor_cache = GetAccessors(tar);
-                        if (FloatThreads[tmp].Enable)
+                        return (CacheDict cache) =>
                         {
-                            return (CacheDict cache) =>
+                            #region Reflection Get
+                            switch (MemberRModes[tmp])
                             {
-                                #region Reflection Get
-                                switch (MemberRModes[tmp])
-                                {
-                                    case ThreadUtil.ReflectionMode.Field:
+                                case ThreadUtil.ReflectionMode.Field:
+                                    {
+                                        CacheObj obj = new CacheObj();
+                                        obj.Value_Float = (float)tar.GetType().GetField(FloatNames[tmp]).GetValue(tar);
+                                        cache.Overwrite("initial", obj);
+                                        break;
+                                    }
+                                case ThreadUtil.ReflectionMode.Property:
+                                    {
+                                        Func<float> func = null;
+                                        if (accessor_cache.Getters.TryGetValue(FloatNames[tmp], out func))
                                         {
                                             CacheObj obj = new CacheObj();
-                                            obj.Value_Float = (float)tar.GetType().GetField(FloatNames[tmp]).GetValue(tar);
+                                            obj.Value_Float = func();
                                             cache.Overwrite("initial", obj);
-                                            break;
                                         }
-                                    case ThreadUtil.ReflectionMode.Property:
+                                        else
                                         {
-                                            Func<float> func = null;
-                                            if (accessor_cache.Getters.TryGetValue(FloatNames[tmp], out func))
-                                            {
-                                                CacheObj obj = new CacheObj();
-                                                obj.Value_Float = func();
-                                                cache.Overwrite("initial", obj);
-                                            }
-                                            else
-                                            {
-                                                CacheObj obj = new CacheObj();
-                                                obj.Value_Float = (float)tar.GetType().GetProperty(FloatNames[tmp]).GetValue(tar);
-                                                cache.Overwrite("initial", obj);
-                                            }
-                                            break;
+                                            CacheObj obj = new CacheObj();
+                                            obj.Value_Float = (float)tar.GetType().GetProperty(FloatNames[tmp]).GetValue(tar);
+                                            cache.Overwrite("initial", obj);
                                         }
-                                }
-                                #endregion
-                            };
-                        }
-                        else
-                            return null;
+                                        break;
+                                    }
+                            }
+                            #endregion
+                        };
                     });
                     final_exe.Add((Component tar) =>
                     {
                         var accessor_cache = GetAccessors(tar);
-                        if (FloatThreads[tmp].Enable)
+                        return (CacheDict cache) =>
                         {
-                            return (CacheDict cache) =>
+                            if (FloatThreads[tmp].Resume)
                             {
-                                if (FloatThreads[tmp].Resume)
+                                #region Reflection Set
+                                switch (MemberRModes[tmp])
                                 {
-                                    #region Reflection Set
-                                    switch (MemberRModes[tmp])
-                                    {
-                                        case ThreadUtil.ReflectionMode.Field:
-                                            tar.GetType().GetField(FloatNames[tmp]).SetValue(tar, cache.GetValue("initial").Value_Float);
-                                            break;
-                                        case ThreadUtil.ReflectionMode.Property:
-                                            Action<float> func = null;
-                                            if (accessor_cache.Setters.TryGetValue(FloatNames[tmp], out func))
-                                            {
-                                                func(cache.GetValue("initial").Value_Float);
-                                            }
-                                            else
-                                            {
-                                                tar.GetType().GetProperty(FloatNames[tmp]).SetValue(tar, cache.GetValue("initial").Value_Float);
-                                            }
-                                            break;
-                                    }
-                                    #endregion
+                                    case ThreadUtil.ReflectionMode.Field:
+                                        tar.GetType().GetField(FloatNames[tmp]).SetValue(tar, cache.GetValue("initial").Value_Float);
+                                        break;
+                                    case ThreadUtil.ReflectionMode.Property:
+                                        Action<float> func = null;
+                                        if (accessor_cache.Setters.TryGetValue(FloatNames[tmp], out func))
+                                        {
+                                            func(cache.GetValue("initial").Value_Float);
+                                        }
+                                        else
+                                        {
+                                            tar.GetType().GetProperty(FloatNames[tmp]).SetValue(tar, cache.GetValue("initial").Value_Float);
+                                        }
+                                        break;
                                 }
-                                else
-                                {
-                                    EvaluateFloat(tar, tmp, 1f, accessor_cache, cache);
-                                }
-                            };
-                        }
-                        else
-                            return null;
+                                #endregion
+                            }
+                            else
+                            {
+                                EvaluateFloat(tar, tmp, 1f, accessor_cache, cache);
+                            }
+                        };
                     });
                     on_exe.Add((Component tar) =>
                     {
                         var accessor_cache = GetAccessors(tar);
-                        if (FloatThreads[tmp].Enable)
+                        return (float time, CacheDict cache) =>
                         {
-                            return (float time, CacheDict cache) =>
-                            {
-                                EvaluateFloat(tar, tmp, time, accessor_cache, cache);
-                            };
-                        }
-                        else
-                            return null;
+                            EvaluateFloat(tar, tmp, time, accessor_cache, cache);
+                        };
                     });
                 }
             }

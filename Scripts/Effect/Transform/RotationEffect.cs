@@ -30,66 +30,51 @@ namespace TS.TSEffect.Effect
                 init_exe.Add((Component tar) =>
                 {
                     var instance = tar as Transform;
-                    if (Rotation.Enable)
+                    return (CacheDict cache) =>
                     {
-                        return (CacheDict cache) =>
+                        if (IsWorldRot)
                         {
-                            if (IsWorldRot)
-                            {
-                                CacheObj obj = new CacheObj();
-                                obj.Value_UnityEngine_Quaternion = instance.rotation;
-                                cache.Overwrite("initial", obj);
-                            }
-                            else
-                            {
-                                CacheObj obj = new CacheObj();
-                                obj.Value_UnityEngine_Quaternion = instance.localRotation;
-                                cache.Overwrite("initial", obj);
-                            }
-                        };
-                    }
-                    else
-                        return null;
+                            CacheObj obj = new CacheObj();
+                            obj.Value_UnityEngine_Quaternion = instance.rotation;
+                            cache.Overwrite("initial", obj);
+                        }
+                        else
+                        {
+                            CacheObj obj = new CacheObj();
+                            obj.Value_UnityEngine_Quaternion = instance.localRotation;
+                            cache.Overwrite("initial", obj);
+                        }
+                    };
                 });
                 final_exe.Add((Component tar) =>
                 {
                     var instance = tar as Transform;
-                    if (Rotation.Enable)
+                    return (CacheDict cache) =>
                     {
-                        return (CacheDict cache) =>
+                        if (Rotation.Resume)
                         {
-                            if (Rotation.Resume)
+                            if (IsWorldRot)
                             {
-                                if (IsWorldRot)
-                                {
-                                    instance.rotation = cache.GetValue("initial").Value_UnityEngine_Quaternion;
-                                }
-                                else
-                                {
-                                    instance.localRotation = cache.GetValue("initial").Value_UnityEngine_Quaternion;
-                                }
+                                instance.rotation = cache.GetValue("initial").Value_UnityEngine_Quaternion;
                             }
                             else
                             {
-                                EvaluateRotation(instance, 1f, cache);
+                                instance.localRotation = cache.GetValue("initial").Value_UnityEngine_Quaternion;
                             }
-                        };
-                    }
-                    else
-                        return null;
+                        }
+                        else
+                        {
+                            EvaluateRotation(instance, 1f, cache);
+                        }
+                    };
                 });
                 on_exe.Add((Component tar) =>
                 {
                     var instance = tar as Transform;
-                    if (Rotation.Enable)
+                    return (float time, CacheDict cache) =>
                     {
-                        return (float time, CacheDict cache) =>
-                        {
-                            EvaluateRotation(instance, time, cache);
-                        };
-                    }
-                    else
-                        return null;
+                        EvaluateRotation(instance, time, cache);
+                    };
                 });
             }
             #endregion

@@ -60,6 +60,8 @@ namespace TS.TSEffect.Thread
         private bool _IsLoopDelay = false;
         public ExecutableThreadCore ExeThreadCore { get { return _ExeThreadCore; } }
         private ExecutableThreadCore _ExeThreadCore;
+        public string ExecutorID { get { return _ExecutorID; } }
+        private string _ExecutorID;
         #endregion
 
         private Action _RemoveCallback;
@@ -271,10 +273,11 @@ namespace TS.TSEffect.Thread
         {
             _SuspendCallback = callback;
         }
-        public ThreadExecutor(ExecutableThreadCore core, int channel)
+        public ThreadExecutor(ExecutableThreadCore core, int channel, string executor_id)
         {
             _ExeThreadCore = core;
             _Channel = channel;
+            _ExecutorID = executor_id;
             _IsSuspended = false;
             RuntimeInit();
         }

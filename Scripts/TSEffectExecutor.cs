@@ -51,7 +51,7 @@ namespace TS.TSEffect
 
                 GUIStyle style = new GUIStyle();
                 style.normal.textColor = new Color(50f / 255f, 50f / 255f, 50f / 255f);
-                EditorGUI.LabelField(new Rect(rect.x + 5, rect.y + 5, rect.width, 15), exe.ExeThreadCore.Name, style);
+                EditorGUI.LabelField(new Rect(rect.x + 5, rect.y + 5, rect.width, 15), exe.ExeThreadCore.Name + " " + exe.ExecutorID, style);
                 EditorGUI.LabelField(new Rect(rect.x - 105, rect.y + 5, 105, 15), status);
 
                 EditorGUI.DrawRect(new Rect(rect.x + 2, rect.y + 2, (rect.width - 4) * exe.RelativePerc, rect.height - 4), new Color(0, 0, 0, 0.1f));
@@ -72,7 +72,7 @@ namespace TS.TSEffect
             {
                 exe.Update();
             }
-            TSEffect.ExecuteRECallbacks();
+            TSEffect.ExecuteRELateOperations();
         }
     }
 }

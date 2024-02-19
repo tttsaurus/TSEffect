@@ -30,66 +30,51 @@ namespace TS.TSEffect.Effect
                 init_exe.Add((Component tar) =>
                 {
                     var instance = tar as Transform;
-                    if (Position.Enable)
+                    return (CacheDict cache) =>
                     {
-                        return (CacheDict cache) =>
+                        if (IsWorldPos)
                         {
-                            if (IsWorldPos)
-                            {
-                                CacheObj obj = new CacheObj();
-                                obj.Value_UnityEngine_Vector3 = instance.position;
-                                cache.Overwrite("initial", obj);
-                            }
-                            else
-                            {
-                                CacheObj obj = new CacheObj();
-                                obj.Value_UnityEngine_Vector3 = instance.localPosition;
-                                cache.Overwrite("initial", obj);
-                            }
-                        };
-                    }
-                    else
-                        return null;
+                            CacheObj obj = new CacheObj();
+                            obj.Value_UnityEngine_Vector3 = instance.position;
+                            cache.Overwrite("initial", obj);
+                        }
+                        else
+                        {
+                            CacheObj obj = new CacheObj();
+                            obj.Value_UnityEngine_Vector3 = instance.localPosition;
+                            cache.Overwrite("initial", obj);
+                        }
+                    };
                 });
                 final_exe.Add((Component tar) =>
                 {
                     var instance = tar as Transform;
-                    if (Position.Enable)
+                    return (CacheDict cache) =>
                     {
-                        return (CacheDict cache) =>
+                        if (Position.Resume)
                         {
-                            if (Position.Resume)
+                            if (IsWorldPos)
                             {
-                                if (IsWorldPos)
-                                {
-                                    instance.position = cache.GetValue("initial").Value_UnityEngine_Vector3;
-                                }
-                                else
-                                {
-                                    instance.localPosition = cache.GetValue("initial").Value_UnityEngine_Vector3;
-                                }
+                                instance.position = cache.GetValue("initial").Value_UnityEngine_Vector3;
                             }
                             else
                             {
-                                EvaluatePosition(instance, 1f, cache);
+                                instance.localPosition = cache.GetValue("initial").Value_UnityEngine_Vector3;
                             }
-                        };
-                    }
-                    else
-                        return null;
+                        }
+                        else
+                        {
+                            EvaluatePosition(instance, 1f, cache);
+                        }
+                    };
                 });
                 on_exe.Add((Component tar) =>
                 {
                     var instance = tar as Transform;
-                    if (Position.Enable)
+                    return (float time, CacheDict cache) =>
                     {
-                        return (float time, CacheDict cache) =>
-                        {
-                            EvaluatePosition(instance, time, cache);
-                        };
-                    }
-                    else
-                        return null;
+                        EvaluatePosition(instance, time, cache);
+                    };
                 });
             }
             #endregion
