@@ -224,7 +224,7 @@ namespace TS.TSEffect.Template
 
         public TSEffectTemplate()
         {
-            throw new NotSupportedException("You should construct an effect using TS.TSEffect.Util.Effect.EffectUtil.TryInstantiateEffect.");
+            throw new NotSupportedException("You should construct an effect using TS.TSEffect.Util.EffectUtil.TryInstantiateEffect.");
         }
     }
 }

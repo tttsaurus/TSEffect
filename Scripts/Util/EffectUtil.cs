@@ -12,17 +12,19 @@ namespace TS.TSEffect.Util
         public static List<Type> GetEffectTypesByReflection()
         {
             List<Type> types = new List<Type>();
-            Type parent = typeof(TSEffectTemplate);
-            var assembly = parent.Assembly;
-            var all_types = assembly.GetTypes();
-            foreach (var type in all_types)
+            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            foreach (var assembly in assemblies)
             {
-                var temp_reg = type.GetCustomAttribute(typeof(TemplateRegister)) as TemplateRegister;
-                if (temp_reg != null)
+                var all_types = assembly.GetTypes();
+                foreach (var type in all_types)
                 {
-                    if (typeof(TSEffectTemplate).IsAssignableFrom(type))
+                    var temp_reg = type.GetCustomAttribute(typeof(TemplateRegister)) as TemplateRegister;
+                    if (temp_reg != null)
                     {
-                        types.Add(type);
+                        if (typeof(TSEffectTemplate).IsAssignableFrom(type))
+                        {
+                            types.Add(type);
+                        }
                     }
                 }
             }
