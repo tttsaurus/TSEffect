@@ -146,9 +146,10 @@ namespace TS.TSEffect.Effect
                 {
                     EditorGUILayout.BeginHorizontal();
                     GUILayout.Label((IsWorldPos ? "World " : "Local ") + "Position");
-                    if (GUILayout.Button(IsWorldPos ? "W" : "L", GUILayout.MaxWidth(25))) IsWorldPos = !IsWorldPos;
-                    Position.Target = EditorGUILayout.Vector3Field("", Position.Target, GUILayout.MaxWidth(190));
-                    Position.Mode = (DataVaryingMode)EditorGUILayout.EnumPopup(Position.Mode, GUILayout.MaxWidth(80));
+                    float width = TSEffectGUILayout.GetInputFieldWidth();
+                    if (GUILayout.Button(IsWorldPos ? "W" : "L", GUILayout.MaxWidth(width * 25f / 295f))) IsWorldPos = !IsWorldPos;
+                    Position.Target = EditorGUILayout.Vector3Field("", Position.Target, GUILayout.MaxWidth(width * 190f / 295f - 4f));
+                    Position.Mode = (DataVaryingMode)EditorGUILayout.EnumPopup(Position.Mode, GUILayout.MaxWidth(width * 80f / 295f - 2f));
                     EditorGUILayout.EndHorizontal();
                 });
             }

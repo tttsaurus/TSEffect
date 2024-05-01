@@ -9,8 +9,18 @@ using UnityEditor;
 
 namespace TS.TSEffect.Editor
 {
-    public class TSEffectGUILayout
+    public static class TSEffectGUILayout
     {
+        public const float InputFieldWidthRatio = 0.6f;
+        public static float GetInputFieldWidth()
+        {
+#if UNITY_EDITOR
+            return Screen.width * InputFieldWidthRatio / 2f;
+#else
+            return 0f;
+#endif
+        }
+
         #region ThreadHeaderField
         public static void ThreadHeaderField(string title, BaseThread value)
         {
@@ -40,39 +50,41 @@ namespace TS.TSEffect.Editor
 #if UNITY_EDITOR
             EditorGUI.BeginDisabledGroup(!value.Enable);
 
+            float width = GetInputFieldWidth();
+
             EditorGUILayout.BeginHorizontal();
             GUILayout.Label("Priority");
-            value.Priority = EditorGUILayout.IntField(value.Priority, GUILayout.MaxWidth(300));
+            value.Priority = EditorGUILayout.IntField(value.Priority, GUILayout.MaxWidth(width));
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.BeginHorizontal();
             GUILayout.Label("Auto Suspend");
-            value.AutoSuspend = EditorGUILayout.Toggle(value.AutoSuspend, GUILayout.MaxWidth(300));
+            value.AutoSuspend = EditorGUILayout.Toggle(value.AutoSuspend, GUILayout.MaxWidth(width));
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.BeginHorizontal();
             GUILayout.Label("Initial Delay");
-            value.InitialDelay = EditorGUILayout.FloatField(value.InitialDelay, GUILayout.MaxWidth(300));
+            value.InitialDelay = EditorGUILayout.FloatField(value.InitialDelay, GUILayout.MaxWidth(width));
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.BeginHorizontal();
             GUILayout.Label("Duration");
-            value.Duration = EditorGUILayout.FloatField(value.Duration, GUILayout.MaxWidth(300));
+            value.Duration = EditorGUILayout.FloatField(value.Duration, GUILayout.MaxWidth(width));
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.BeginHorizontal();
             GUILayout.Label("Loop");
-            value.Loop = EditorGUILayout.IntField(value.Loop, GUILayout.MaxWidth(300));
+            value.Loop = EditorGUILayout.IntField(value.Loop, GUILayout.MaxWidth(width));
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.BeginHorizontal();
             GUILayout.Label("Delay Between Loops");
-            value.DelayBetweenLoops = EditorGUILayout.FloatField(value.DelayBetweenLoops, GUILayout.MaxWidth(300));
+            value.DelayBetweenLoops = EditorGUILayout.FloatField(value.DelayBetweenLoops, GUILayout.MaxWidth(width));
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.BeginHorizontal();
             GUILayout.Label("Resume");
-            value.Resume = EditorGUILayout.Toggle(value.Resume, GUILayout.MaxWidth(300));
+            value.Resume = EditorGUILayout.Toggle(value.Resume, GUILayout.MaxWidth(width));
             EditorGUILayout.EndHorizontal();
 
             EditorGUI.EndDisabledGroup();
@@ -90,13 +102,12 @@ namespace TS.TSEffect.Editor
             }
             if (value.Foldout)
             {
-                EditorGUI.BeginDisabledGroup(value.Enable == false);
-
                 BaseThreadMainField(value);
 
+                EditorGUI.BeginDisabledGroup(!value.Enable);
                 EditorGUILayout.BeginHorizontal();
                 GUILayout.Label("Behavior");
-                value.Behavior = EditorGUILayout.CurveField(value.Behavior, GUILayout.MaxWidth(300));
+                value.Behavior = EditorGUILayout.CurveField(value.Behavior, GUILayout.MaxWidth(GetInputFieldWidth()));
                 EditorGUILayout.EndHorizontal();
                 gui();
                 EditorGUI.EndDisabledGroup();
@@ -116,13 +127,12 @@ namespace TS.TSEffect.Editor
             }
             if (value.Foldout)
             {
-                EditorGUI.BeginDisabledGroup(value.Enable == false);
-
                 BaseThreadMainField(value);
 
+                EditorGUI.BeginDisabledGroup(!value.Enable);
                 EditorGUILayout.BeginHorizontal();
                 GUILayout.Label("Behavior");
-                if (GUILayout.Button("Edit", GUILayout.MaxWidth(301)))
+                if (GUILayout.Button("Edit", GUILayout.MaxWidth(GetInputFieldWidth() + 1)))
                 {
                     value.Behavior.Foldout = !value.Behavior.Foldout;
                 }
@@ -131,7 +141,6 @@ namespace TS.TSEffect.Editor
                 {
                     TSEffectGUI.TriggerTableField(GUILayoutUtility.GetRect(Screen.width, 20), value.Behavior, value.Duration, value_adjust);
                 }
-
                 EditorGUI.EndDisabledGroup();
             }
             EditorGUILayout.Space(1);
@@ -146,13 +155,12 @@ namespace TS.TSEffect.Editor
             }
             if (value.Foldout)
             {
-                EditorGUI.BeginDisabledGroup(value.Enable == false);
-
                 BaseThreadMainField(value);
 
+                EditorGUI.BeginDisabledGroup(!value.Enable);
                 EditorGUILayout.BeginHorizontal();
                 GUILayout.Label("Behavior");
-                if (GUILayout.Button("Edit", GUILayout.MaxWidth(301)))
+                if (GUILayout.Button("Edit", GUILayout.MaxWidth(GetInputFieldWidth() + 1)))
                 {
                     value.Behavior.Foldout = !value.Behavior.Foldout;
                 }
@@ -161,7 +169,6 @@ namespace TS.TSEffect.Editor
                 {
                     TSEffectGUI.TriggerTableField(GUILayoutUtility.GetRect(Screen.width, 20), value.Behavior, value.Duration, (v) => { return v; });
                 }
-
                 EditorGUI.EndDisabledGroup();
             }
             EditorGUILayout.Space(1);

@@ -6,6 +6,7 @@ using TS.TSEffect.Thread;
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.AnimatedValues;
+using TS.TSEffect.Editor;
 #endif
 
 namespace TS.TSEffect.Template
@@ -166,7 +167,7 @@ namespace TS.TSEffect.Template
                     EditorGUILayout.Space(5);
                     EditorGUILayout.BeginHorizontal();
                     GUILayout.Label("Target Type");
-                    GUILayout.Label(_TargetType, GUILayout.MaxWidth(300));
+                    GUILayout.Label(_TargetType, GUILayout.MaxWidth(TSEffectGUILayout.GetInputFieldWidth()));
                     EditorGUILayout.EndHorizontal();
                 }
             }

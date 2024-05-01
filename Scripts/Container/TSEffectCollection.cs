@@ -2,6 +2,7 @@ using UnityEngine;
 
 #if UNITY_EDITOR
 using UnityEditor;
+using TS.TSEffect.Editor;
 #endif
 
 namespace TS.TSEffect.Container
@@ -70,7 +71,7 @@ namespace TS.TSEffect.Container
                 EditorGUILayout.Space(10);
                 EditorGUILayout.BeginHorizontal();
                 GUILayout.Label("Is Built-in");
-                EditorGUILayout.BeginHorizontal(GUILayout.MaxWidth(300));
+                EditorGUILayout.BeginHorizontal(GUILayout.MaxWidth(TSEffectGUILayout.GetInputFieldWidth()));
                 EditorGUI.BeginDisabledGroup(true);
                 EditorGUILayout.Toggle(Coll.IsBuiltin, GUILayout.MaxWidth(15));
                 EditorGUI.EndDisabledGroup();
@@ -122,10 +123,11 @@ namespace TS.TSEffect.Container
                 }
                 EditorGUILayout.EndHorizontal();
                 EditorGUILayout.EndHorizontal();
+
                 EditorGUILayout.BeginHorizontal();
                 EditorGUI.BeginDisabledGroup(!Coll.IsBuiltin);
                 GUILayout.Label("Executables ID");
-                Coll.ID = EditorGUILayout.TextField(Coll.ID, GUILayout.MaxWidth(300));
+                Coll.ID = EditorGUILayout.TextField(Coll.ID, GUILayout.MaxWidth(TSEffectGUILayout.GetInputFieldWidth()));
                 EditorGUI.EndDisabledGroup();
                 EditorGUILayout.EndHorizontal();
             }

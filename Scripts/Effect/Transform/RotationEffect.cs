@@ -146,9 +146,10 @@ namespace TS.TSEffect.Effect
                 {
                     EditorGUILayout.BeginHorizontal();
                     GUILayout.Label((IsWorldRot ? "World " : "Local ") + " Rotation");
-                    if (GUILayout.Button(IsWorldRot ? "W" : "L", GUILayout.MaxWidth(25))) IsWorldRot = !IsWorldRot;
-                    Rotation.Target = EditorGUILayout.Vector3Field("", Rotation.Target, GUILayout.MaxWidth(190));
-                    Rotation.Mode = (DataVaryingMode)EditorGUILayout.EnumPopup(Rotation.Mode, GUILayout.MaxWidth(80));
+                    float width = TSEffectGUILayout.GetInputFieldWidth();
+                    if (GUILayout.Button(IsWorldRot ? "W" : "L", GUILayout.MaxWidth(width * 25f / 295f))) IsWorldRot = !IsWorldRot;
+                    Rotation.Target = EditorGUILayout.Vector3Field("", Rotation.Target, GUILayout.MaxWidth(width * 190f / 295f - 4f));
+                    Rotation.Mode = (DataVaryingMode)EditorGUILayout.EnumPopup(Rotation.Mode, GUILayout.MaxWidth(width * 80f / 295f - 2f));
                     EditorGUILayout.EndHorizontal();
                 });
             }

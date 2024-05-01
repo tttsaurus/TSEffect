@@ -222,11 +222,18 @@ namespace TS.TSEffect.Effect
             {
                 EditorGUILayout.Space(10);
                 Rect rect = GUILayoutUtility.GetRect(Screen.width, 18);
-                float width = 151.5f;
-                if (rect.width < 400) width = width - (400 - rect.width) / 2f;
-                Rect rect1 = new Rect((rect.x + rect.width) - (width * 2) + 2, rect.y, width, rect.height);
-                Rect rect2 = new Rect((rect.x + rect.width) - width + 2, rect.y, width, rect.height);
+                float width = TSEffectGUILayout.GetInputFieldWidth();
+                width = width < 232f ? 232f : width;
+                width /= 2f;
+                Rect rect1 = new Rect((rect.x + rect.width) - (width * 2) - 4, rect.y, width + 4, rect.height);
+                Rect rect2 = new Rect((rect.x + rect.width) - width, rect.y, width, rect.height);
                 GUI.Label(rect, "Reflection Mode");
+                if (rect.width < 330f)
+                {
+                    rect1.y += 20f;
+                    rect2.y += 20f;
+                    EditorGUILayout.Space(20);
+                }
                 RMode = (ThreadUtil.ReflectionMode)EditorGUI.EnumPopup(rect1, RMode);
                 if (GUI.Button(rect2, "Refresh " + RMode.ToString()))
                 {
@@ -286,7 +293,7 @@ namespace TS.TSEffect.Effect
                 MonoBehaviour mono = null;
                 EditorGUILayout.BeginHorizontal();
                 GUILayout.Label("Type Getter");
-                mono = EditorGUILayout.ObjectField("", mono, typeof(MonoBehaviour), true, GUILayout.MaxWidth(300)) as MonoBehaviour;
+                mono = EditorGUILayout.ObjectField("", mono, typeof(MonoBehaviour), true, GUILayout.MaxWidth(TSEffectGUILayout.GetInputFieldWidth())) as MonoBehaviour;
                 EditorGUILayout.EndHorizontal();
                 if (mono != null)
                 {

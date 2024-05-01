@@ -113,8 +113,9 @@ namespace TS.TSEffect.Effect
                 {
                     EditorGUILayout.BeginHorizontal();
                     GUILayout.Label("Local Scale");
-                    Scale.Target = EditorGUILayout.Vector3Field("", Scale.Target, GUILayout.MaxWidth(217));
-                    Scale.Mode = (DataVaryingMode)EditorGUILayout.EnumPopup(Scale.Mode, GUILayout.MaxWidth(80));
+                    float width = TSEffectGUILayout.GetInputFieldWidth();
+                    Scale.Target = EditorGUILayout.Vector3Field("", Scale.Target, GUILayout.MaxWidth(width * 217f / 297f - 2f));
+                    Scale.Mode = (DataVaryingMode)EditorGUILayout.EnumPopup(Scale.Mode, GUILayout.MaxWidth(width * 80f / 297f - 2f));
                     EditorGUILayout.EndHorizontal();
                 });
             }
