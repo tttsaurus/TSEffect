@@ -83,8 +83,8 @@ namespace TS.TSEffect.Editor
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.BeginHorizontal();
-            GUILayout.Label("Resume");
-            value.Resume = EditorGUILayout.Toggle(value.Resume, GUILayout.MaxWidth(width));
+            GUILayout.Label("Recover After All");
+            value.RecoverAfterAll = EditorGUILayout.Toggle(value.RecoverAfterAll, GUILayout.MaxWidth(width));
             EditorGUILayout.EndHorizontal();
 
             EditorGUI.EndDisabledGroup();

@@ -105,6 +105,7 @@ namespace TS.TSEffect
                 }
             }
         }
+
         /// <summary>
         /// Call this function to detach a component from the given channel.
         /// </summary>
@@ -130,6 +131,7 @@ namespace TS.TSEffect
                 etor.Current.RemoveRuntimeTarget(com, channel);
             }
         }
+
         /// <summary>
         /// Call this function to compile effects and store them in the dictionary with the given ID.
         /// </summary>
@@ -195,6 +197,7 @@ namespace TS.TSEffect
                 return true;
             }       
         }
+
         /// <summary>
         /// Call this function to execute effects.
         /// </summary>
@@ -247,6 +250,7 @@ namespace TS.TSEffect
             else
                 return false;
         }
+
         /// <summary>
         /// Don't call it manually.
         /// This function will be called automatically at runtime.
@@ -295,6 +299,7 @@ namespace TS.TSEffect
             AssetDatabase.Refresh();
 #endif
         }
+
         /// <summary>
         /// Don't call it manually.
         /// This function will be called automatically at runtime when needed.
@@ -361,9 +366,10 @@ namespace TS.TSEffect
                 return true;
             }
         }
+
         /// <summary>
         /// Don't call it manually.
-        /// This function will be called automatically at runtime.
+        /// This function will be called automatically before Awake() in MonoBehaviour.
         /// </summary>
         public static void LoadTSEffect()
         {
@@ -377,9 +383,10 @@ namespace TS.TSEffect
             _Metadata.InitCache();
             PostDeserialize();
         }
+
         /// <summary>
         /// Don't call it manually.
-        /// This function will be called automatically at runtime.
+        /// This function will be called automatically before Awake() in MonoBehaviour.
         /// </summary>
         public static void LoadBuiltinEffectCollections()
         {

@@ -51,7 +51,7 @@ namespace TS.TSEffect.Effect
                     var instance = tar as Transform;
                     return (CacheDict cache) =>
                     {
-                        if (Rotation.Resume)
+                        if (Rotation.RecoverAfterAll)
                         {
                             if (IsWorldRot)
                             {

@@ -41,7 +41,7 @@ namespace TS.TSEffect.Effect
                     var instance = tar as Transform;
                     return (CacheDict cache) =>
                     {
-                        if (Scale.Resume)
+                        if (Scale.RecoverAfterAll)
                         {
                             instance.localScale = cache.GetValue("initial").Value_UnityEngine_Vector3;
                         }

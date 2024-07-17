@@ -79,7 +79,7 @@ namespace TS.TSEffect.Effect
                         var accessor_cache = GetAccessors(tar);
                         return (CacheDict cache) =>
                         {
-                            if (FloatThreads[tmp].Resume)
+                            if (FloatThreads[tmp].RecoverAfterAll)
                             {
                                 #region Reflection Set
                                 switch (MemberRModes[tmp])

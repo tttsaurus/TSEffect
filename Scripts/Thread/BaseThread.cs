@@ -27,9 +27,9 @@ namespace TS.TSEffect.Thread
         [SerializeField]
         private float _InitialDelay = 0f;
 
-        public bool Resume { get { return _Resume; } set { _Resume = value; } }
+        public bool RecoverAfterAll { get { return _RecoverAfterAll; } set { _RecoverAfterAll = value; } }
         [SerializeField]
-        private bool _Resume = false;
+        private bool _RecoverAfterAll = false;
 
         public int Loop { get { return _Loop; } set { _Loop = value; if (_Loop < 1) _Loop = 1; } }
         [SerializeField]
@@ -52,7 +52,7 @@ namespace TS.TSEffect.Thread
             _AutoSuspend = true;
             _Duration = 1f;
             _InitialDelay = 0f;
-            _Resume = false;
+            _RecoverAfterAll = false;
             _Loop = 1;
             _DelayBetweenLoops = 0;
             _Priority = 0;
