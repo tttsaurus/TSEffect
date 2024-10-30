@@ -72,94 +72,89 @@ namespace TS.TSEffect.Thread
 
         public void Update()
         {
-            if (!_IsSuspended)
+            if (_IsSuspended) return;
+            if (_IsPaused) return;
+            if (_IsFinished) return;
+
+            float delta = Time.deltaTime;
+            _RelativeTimer += delta;
+            _OverallTimer += delta;
+            if (_IsInitDelay)
             {
-                if (!_IsPaused)
+                if (_RelativeTimer >= _ExeThreadCore.Thread.InitialDelay)
                 {
-                    if (!_IsFinished)
+                    // reset timer
+                    _RelativeTimer -= _ExeThreadCore.Thread.InitialDelay;
+                    _IsInitDelay = false;
+                    foreach (var pair in _RuntimeComs)
                     {
-                        float delta = Time.deltaTime;
-                        _RelativeTimer += delta;
-                        _OverallTimer += delta;
-                        if (_IsInitDelay)
+                        _RuntimeCacheDict.SetUser(pair.Key.GetInstanceID());
+                        pair.Value.InitExecute(_RuntimeCacheDict);
+                    }
+                }
+            }
+            else
+            {
+                if (_IsLoopDelay)
+                {
+                    if (_RelativeTimer >= _ExeThreadCore.Thread.DelayBetweenLoops)
+                    {
+                        // reset timer
+                        _RelativeTimer -= _ExeThreadCore.Thread.DelayBetweenLoops;
+                        _IsLoopDelay = false;
+                        foreach (var pair in _RuntimeComs)
                         {
-                            if (_RelativeTimer >= _ExeThreadCore.Thread.InitialDelay)
+                            _RuntimeCacheDict.SetUser(pair.Key.GetInstanceID());
+                            pair.Value.InitExecute(_RuntimeCacheDict);
+                        }
+                    }
+                }
+                else
+                {
+                    if (_RelativeTimer >= _ExeThreadCore.Thread.Duration)
+                    {
+                        foreach (var pair in _RuntimeComs)
+                        {
+                            _RuntimeCacheDict.SetUser(pair.Key.GetInstanceID());
+                            pair.Value.FinalExecute(_RuntimeCacheDict);
+                        }
+                        _LoopCounter++;
+                        if (_LoopCounter >= _ExeThreadCore.Thread.Loop)
+                        {
+                            _RelativeTimer = _ExeThreadCore.Thread.Duration;
+                            _OverallTimer = _ExeThreadCore.Thread.InitialDelay + _ExeThreadCore.Thread.Loop * (_ExeThreadCore.Thread.DelayBetweenLoops + _ExeThreadCore.Thread.Duration) - _ExeThreadCore.Thread.DelayBetweenLoops;
+                            _IsFinished = true;
+                            if (_ExeThreadCore.Thread.AutoSuspend)
                             {
-                                // reset timer
-                                _RelativeTimer -= _ExeThreadCore.Thread.InitialDelay;
-                                _IsInitDelay = false;
-                                foreach (var pair in _RuntimeComs)
-                                {
-                                    _RuntimeCacheDict.SetUser(pair.Key.GetInstanceID());
-                                    pair.Value.InitExecute(_RuntimeCacheDict);
-                                }
+                                Suspend();
+                                _SuspendCallback();
                             }
+                            else
+                                _RemoveCallback();
                         }
                         else
                         {
-                            if (_IsLoopDelay)
+                            // reset timer
+                            _RelativeTimer -= _ExeThreadCore.Thread.Duration;
+                            _IsLoopDelay = true;
+                        }
+                    }
+                    else
+                    {
+                        if (_ExeThreadCore.ThreadType == ThreadType.Varying)
+                        {
+                            foreach (var pair in _RuntimeComs)
                             {
-                                if (_RelativeTimer >= _ExeThreadCore.Thread.DelayBetweenLoops)
-                                {
-                                    // reset timer
-                                    _RelativeTimer -= _ExeThreadCore.Thread.DelayBetweenLoops;
-                                    _IsLoopDelay = false;
-                                    foreach (var pair in _RuntimeComs)
-                                    {
-                                        _RuntimeCacheDict.SetUser(pair.Key.GetInstanceID());
-                                        pair.Value.InitExecute(_RuntimeCacheDict);
-                                    }
-                                }
+                                _RuntimeCacheDict.SetUser(pair.Key.GetInstanceID());
+                                pair.Value.OnExecute(_RelativeTimer / _ExeThreadCore.Thread.Duration, _RuntimeCacheDict);
                             }
-                            else
+                        }
+                        if (_ExeThreadCore.ThreadType == ThreadType.Triggering)
+                        {
+                            foreach (var pair in _RuntimeComs)
                             {
-                                if (_RelativeTimer >= _ExeThreadCore.Thread.Duration)
-                                {
-                                    foreach (var pair in _RuntimeComs)
-                                    {
-                                        _RuntimeCacheDict.SetUser(pair.Key.GetInstanceID());
-                                        pair.Value.FinalExecute(_RuntimeCacheDict);
-                                    }
-                                    _LoopCounter++;
-                                    if (_LoopCounter >= _ExeThreadCore.Thread.Loop)
-                                    {
-                                        _RelativeTimer = _ExeThreadCore.Thread.Duration;
-                                        _OverallTimer = _ExeThreadCore.Thread.InitialDelay + _ExeThreadCore.Thread.Loop * (_ExeThreadCore.Thread.DelayBetweenLoops + _ExeThreadCore.Thread.Duration) - _ExeThreadCore.Thread.DelayBetweenLoops;
-                                        _IsFinished = true;
-                                        if (_ExeThreadCore.Thread.AutoSuspend)
-                                        {
-                                            Suspend();
-                                            _SuspendCallback();
-                                        }
-                                        else
-                                            _RemoveCallback();
-                                    }
-                                    else
-                                    {
-                                        // reset timer
-                                        _RelativeTimer -= _ExeThreadCore.Thread.Duration;
-                                        _IsLoopDelay = true;
-                                    }
-                                }
-                                else
-                                {
-                                    if (_ExeThreadCore.ThreadType == ThreadType.Varying)
-                                    {
-                                        foreach (var pair in _RuntimeComs)
-                                        {
-                                            _RuntimeCacheDict.SetUser(pair.Key.GetInstanceID());
-                                            pair.Value.OnExecute(_RelativeTimer / _ExeThreadCore.Thread.Duration, _RuntimeCacheDict);
-                                        }
-                                    }
-                                    if (_ExeThreadCore.ThreadType == ThreadType.Triggering)
-                                    {
-                                        foreach (var pair in _RuntimeComs)
-                                        {
-                                            _RuntimeCacheDict.SetUser(pair.Key.GetInstanceID());
-                                            pair.Value.OnExecute(_RelativeTimer, _RuntimeCacheDict);
-                                        }
-                                    }
-                                }
+                                _RuntimeCacheDict.SetUser(pair.Key.GetInstanceID());
+                                pair.Value.OnExecute(_RelativeTimer, _RuntimeCacheDict);
                             }
                         }
                     }
